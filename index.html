@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Form-Meaning-Function Experiment</title>
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #instruction { margin-bottom: 20px; font-size: 1.2rem; color: #333; }
+        
+        /* 버튼 스타일 기본 */
+        #target-btn {
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 20px 40px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        #target-btn:active { transform: scale(0.95); }
+
+        /* 형태 변수 (Form) */
+        .round-shape {
+            border-radius: 50px; /* 둥글고 안전한 형태 */
+            background-color: #2ecc71; /* 초록 (안전) */
+        }
+        .spiky-shape {
+            border-radius: 0px;
+            clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%); /* 각진 형태 */
+            background-color: #e74c3c; /* 빨강 (위험/경고) */
+            border: 2px solid #c0392b;
+        }
+
+        #result-area { display: none; text-align: center; }
+        .data-row { margin: 10px 0; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+
+    <div id="instruction">화면을 클릭하면 시작합니다.</div>
+    <button id="target-btn" style="display:none;">버튼</button>
+    
+    <div id="result-area">
+        <h2>실험 결과</h2>
+        <div class="data-row">일치 조건 (Match) 평균 시간: <b id="match-time"></b> ms</div>
+        <div class="data-row">불일치 조건 (Mismatch) 평균 시간: <b id="mismatch-time"></b> ms</div>
+        <p id="analysis"></p>
+        <button onclick="location.reload()" style="padding:10px; margin-top:20px;">다시 하기</button>
+    </div>
+
+    <script>
+        const instruction = document.getElementById('instruction');
+        const btn = document.getElementById('target-btn');
+        const resultArea = document.getElementById('result-area');
+        
+        // 실험 데이터 설정
+        // Type 1: Match (뾰족=삭제 / 둥글=저장)
+        // Type 2: Mismatch (둥글=삭제 / 뾰족=저장)
+        const trials = [
+            { type: 'match', form: 'spiky-shape', text: '삭제하기' },
+            { type: 'match', form: 'round-shape', text: '보호하기' },
+            { type: 'mismatch', form: 'round-shape', text: '삭제하기' }, // 인지 부조화 유발
+            { type: 'mismatch', form: 'spiky-shape', text: '보호하기' }, // 인지 부조화 유발
+            { type: 'match', form: 'spiky-shape', text: '공격하기' },
+            { type: 'mismatch', form: 'round-shape', text: '공격하기' }
+        ];
+
+        let currentTrial = 0;
+        let startTime = 0;
+        let results = { match: [], mismatch: [] };
+        let isStarted = false;
+
+        // 셔플 함수 (순서 섞기)
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        document.body.onclick = function(e) {
+            if (!isStarted && e.target.tagName !== 'BUTTON') {
+                isStarted = true;
+                startExperiment();
+            }
+        };
+
+        function startExperiment() {
+            shuffle(trials); // 순서 랜덤
+            instruction.innerText = "버튼이 나타나면 즉시 클릭하세요!";
+            nextTrial();
+        }
+
+        function nextTrial() {
+            if (currentTrial >= trials.length) {
+                showResult();
+                return;
+            }
+
+            btn.style.display = 'none';
+            
+            // 랜덤한 대기 시간 (0.5~1.5초) 후 버튼 등장
+            setTimeout(() => {
+                const trial = trials[currentTrial];
+                
+                // 스타일 초기화 및 적용
+                btn.className = ''; 
+                btn.classList.add(trial.form);
+                btn.innerText = trial.text;
+                
+                btn.style.display = 'block';
+                startTime = Date.now(); // 시간 측정 시작
+            }, 500 + Math.random() * 1000);
+        }
+
+        btn.onclick = function(e) {
+            e.stopPropagation(); // 바디 클릭 방지
+            const endTime = Date.now();
+            const reactionTime = endTime - startTime;
+            
+            // 데이터 저장
+            const trialType = trials[currentTrial].type;
+            results[trialType].push(reactionTime);
+
+            currentTrial++;
+            nextTrial();
+        };
+
+        function showResult() {
+            btn.style.display = 'none';
+            instruction.style.display = 'none';
+            resultArea.style.display = 'block';
+
+            const calcAvg = (arr) => arr.length ? Math.round(arr.reduce((a, b) => a + b) / arr.length) : 0;
+            
+            const matchAvg = calcAvg(results.match);
+            const mismatchAvg = calcAvg(results.mismatch);
+
+            document.getElementById('match-time').innerText = matchAvg;
+            document.getElementById('mismatch-time').innerText = mismatchAvg;
+
+            // 결과 해석
+            const diff = mismatchAvg - matchAvg;
+            const analysisText = document.getElementById('analysis');
+            
+            if (diff > 0) {
+                analysisText.innerHTML = `형태와 기능이 일치하지 않을 때 <b>${diff}ms</b> 더 오래 걸렸습니다.<br>가설대로 형태가 주는 의미가 판단을 방해했음을 시사합니다.`;
+                analysisText.style.color = "blue";
+            } else {
+                analysisText.innerHTML = `유의미한 차이가 발견되지 않았거나, 텍스트 인지가 더 빨랐습니다.`;
+                analysisText.style.color = "red";
+            }
+        }
+    </script>
+</body>
+</html>
