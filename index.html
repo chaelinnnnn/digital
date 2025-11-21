@@ -2,243 +2,166 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>REAL shop</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>REAL shop</title>
 
+  <!-- Fonts -->
   <style>
     @font-face {
-      font-family: 'Gotham';
+      font-family: 'GothamRegular';
       src: url('Gotham-Regular.otf') format('opentype');
-      font-weight: 400;
     }
     @font-face {
-      font-family: 'Gotham';
-      src: url('Gotham-Medium.otf') format('opentype');
-      font-weight: 500;
-    }
-    @font-face {
-      font-family: 'Gotham';
+      font-family: 'GothamBold';
       src: url('Gotham-Bold.otf') format('opentype');
-      font-weight: 700;
     }
-    @font-face {
-      font-family: 'Gotham';
-      src: url('Gotham-Ultra.otf') format('opentype');
-      font-weight: 900;
-    }
-
-    * { box-sizing:border-box; }
 
     body {
-      margin:0;
-      background:#ffffff;
-      overflow:hidden;
-      font-family:'Gotham', system-ui, -apple-system, sans-serif;
-      font-weight:400;
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      font-family: 'GothamRegular', sans-serif;
+      color: #111;
     }
 
-    .header-container {
-      position:relative;
-      text-align:center;
-      padding-top:20px;
-    }
-    .title {
-      font-weight:700;
-      font-size:32px;
-      letter-spacing:0.04em;
-    }
-    .subtitle {
-      margin-top:6px;
-      display:inline-block;
-      font-weight:500;
-      font-size:13px;
-      padding:6px 14px;
-      border-radius:999px;
-      background:#c8fff2;
-    }
-    #bag-btn {
-      position:absolute;
-      right:18px;
-      top:12px;
-      border:none;
-      background:#111;
-      color:#fff;
-      font-family:'Gotham';
-      font-weight:500;
-      font-size:13px;
-      padding:6px 14px;
-      border-radius:999px;
-      cursor:pointer;
+    /* HEADER */
+    header {
+      width: 100%;
+      padding: 22px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-sizing: border-box;
+      font-family: 'GothamBold';
+      font-size: 14px;
     }
 
-    .item { position:absolute; cursor:pointer; }
+    .nav-left span {
+      margin-right: 32px;
+      cursor: pointer;
+    }
+    .nav-right span {
+      margin-left: 28px;
+      cursor: pointer;
+    }
+
+    /* GRID */
+    .product-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding: 60px;
+      gap: 80px 60px;
+      box-sizing: border-box;
+    }
+
+    .item {
+      text-align: center;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
     .item img {
-      width:160px;
-      max-width:38vw;
-      filter:none !important; /* CSS 그림자 제거 */
-      display:block;
-    }
-    .item-inner {
-      animation:float 7s ease-in-out infinite alternate;
-    }
-    @keyframes float {
-      0% { transform:translate(0,0); }
-      50%{ transform:translate(12px,-10px); }
-      100%{ transform:translate(-10px,8px); }
+      width: 75%;
+      transition: 0.3s ease;
+      filter: drop-shadow(0 20px 25px rgba(0,0,0,0.08));
     }
 
-    .phone  { left:4%;   top:40%;  transform:rotate(-10deg); }
-    .tshirt { left:32%;  top:36%;  transform:rotate(6deg); }
-    .airbuds{ left:55%;  top:30%;  transform:rotate(-5deg); }
-    .candle { right:4%;  top:20%;  transform:rotate(9deg); }
-    .water  { right:12%; bottom:10%;transform:rotate(-6deg); }
-    .coffee { left:14%;  bottom:2%; transform:rotate(4deg); }
-    .lip    { left:45%;  bottom:12%;transform:rotate(-7deg); }
-
-    @media(max-width:900px) {
-      .item img { width:130px; }
-      .phone  { left:4%;  top:48%; }
-      .tshirt { left:28%; top:36%; }
-      .airbuds{ left:55%; top:44%; }
-      .candle { right:0%; top:14%; }
-      .water  { right:4%; bottom:8%; }
-      .coffee { left:8%; bottom:-4%; }
-      .lip    { left:40%; bottom:10%; }
+    .item:hover img {
+      transform: translateY(-6px);
+      filter: drop-shadow(0 28px 35px rgba(0,0,0,0.12));
     }
 
-    .backdrop {
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,0.35);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:10;
+    .item-title {
+      margin-top: 20px;
+      font-size: 14px;
     }
-    .backdrop.active { display:flex; }
-
-    .modal {
-      background:#fffdf8;
-      width:min(320px,90vw);
-      border-radius:16px;
-      border:2px solid #111;
-      padding:20px 18px 18px;
-      position:relative;
-    }
-    .modal-title {
-      font-weight:500;
-      font-size:18px;
-      margin-bottom:4px;
-    }
-    .modal-sub {
-      font-size:12px;
-      font-weight:400;
-      opacity:0.7;
-      line-height:1.4;
-    }
-    .modal-close {
-      position:absolute;
-      top:8px;
-      right:10px;
-      border:none;
-      background:#111;
-      color:#fff;
-      border-radius:999px;
-      font-size:11px;
-      padding:3px 9px;
-      cursor:pointer;
-      font-weight:500;
-    }
-    .btn-add {
-      margin-top:16px;
-      border:none;
-      background:#111;
-      color:#fff;
-      border-radius:999px;
-      font-weight:500;
-      font-size:13px;
-      padding:7px 16px;
-      cursor:pointer;
+    .item-price {
+      margin-top: 5px;
+      font-size: 13px;
+      opacity: 0.6;
     }
 
-    .bottom-note {
-      position:fixed;
-      bottom:10px;
-      left:50%;
-      transform:translateX(-50%);
-      padding:6px 14px;
-      border-radius:999px;
-      background:#c8fff2;
-      font-size:12px;
-      font-weight:400;
+    footer {
+      width: 100%;
+      padding: 80px 60px;
+      font-size: 12px;
+      opacity: 0.55;
+      text-align: center;
     }
   </style>
+
 </head>
-
 <body>
-  <div class="header-container">
-    <div class="title">welcome to REAL shop!</div>
-    <div class="subtitle">click objects · add to bag · open bag to checkout</div>
-    <button id="bag-btn">Bag (0)</button>
+
+<header>
+  <div class="nav-left">
+    <span>Sunglasses</span>
+    <span>Eyewear</span>
+    <span>Collection</span>
+    <span>Store</span>
   </div>
 
-  <!-- floating items -->
-  <div class="item phone"  data-labor="78" data-env="82" data-extra="1500"><div class="item-inner"><img src="phone.png"       alt="phone"></div></div>
-  <div class="item tshirt" data-labor="91" data-env="83" data-extra="412"><div class="item-inner"><img src="tshirt.png"      alt="tshirt"></div></div>
-  <div class="item airbuds"data-labor="76" data-env="68" data-extra="1520"><div class="item-inner"><img src="earbuds.png"    alt="earbuds"></div></div>
-  <div class="item candle" data-labor="54" data-env="63" data-extra="240"><div class="item-inner"><img src="candle.png"      alt="candle"></div></div>
-  <div class="item water"  data-labor="52" data-env="81" data-extra="380"><div class="item-inner"><img src="waterbottle.png" alt="water bottle"></div></div>
-  <div class="item coffee" data-labor="62" data-env="57" data-extra="200"><div class="item-inner"><img src="coffee.png"      alt="coffee"></div></div>
-  <div class="item lip"    data-labor="48" data-env="48" data-extra="640"><div class="item-inner"><img src="lipbalm.png"     alt="lip balm"></div></div>
-
-  <div class="bottom-note">Click an object → Add to bag → open Bag to continue</div>
-
-  <!-- modal -->
-  <div class="backdrop" id="modal">
-    <div class="modal">
-      <button class="modal-close" id="close">close</button>
-      <div class="modal-title">Add to bag?</div>
-      <div class="modal-sub">
-        Impact information for this object will appear in your impact receipt after checkout.
-      </div>
-      <button class="btn-add" id="add">Add to bag</button>
-    </div>
+  <div class="logo" style="font-size:26px; font-family:GothamBold;">
+    REAL SHOP
   </div>
 
-  <script>
-    const items = document.querySelectorAll(".item");
-    const modal = document.getElementById("modal");
-    const closeBtn = document.getElementById("close");
-    const addBtn = document.getElementById("add");
-    const bagBtn = document.getElementById("bag-btn");
+  <div class="nav-right">
+    <span onclick="location.href='checkout.html'">Bag</span>
+  </div>
+</header>
 
-    let bag = JSON.parse(localStorage.getItem("impactBag") || "[]");
-    bagBtn.textContent = `Bag (${bag.length})`;
+<!-- PRODUCT GRID -->
+<div class="product-grid">
 
-    let selected = null;
+  <div class="item" onclick="addToCart('Labor 78%', 'Environment 82%', 'CEO 1500×')">
+    <img src="iphone.png">
+    <div class="item-title">Smartphone</div>
+    <div class="item-price">—</div>
+  </div>
 
-    items.forEach(i => {
-      i.addEventListener("click", () => {
-        selected = {
-          labor: i.dataset.labor,
-          env:   i.dataset.env,
-          extra: i.dataset.extra
-        };
-        modal.classList.add("active");
-      });
-    });
+  <div class="item" onclick="addToCart('Labor 52%', 'Environment 38%', 'CEO 900×')">
+    <img src="tshirt.png">
+    <div class="item-title">T-shirt</div>
+    <div class="item-price">—</div>
+  </div>
 
-    closeBtn.onclick = () => modal.classList.remove("active");
+  <div class="item" onclick="addToCart('Labor 61%', 'Environment 44%', 'CEO 700×')">
+    <img src="earbuds.png">
+    <div class="item-title">Earbuds</div>
+    <div class="item-price">—</div>
+  </div>
 
-    addBtn.onclick = () => {
-      if (!selected) return;
-      bag.push(selected);
-      localStorage.setItem("impactBag", JSON.stringify(bag));
-      bagBtn.textContent = `Bag (${bag.length})`;
-      modal.classList.remove("active");
-    };
+  <div class="item" onclick="addToCart('Labor 33%', 'Environment 92%', 'CEO 500×')">
+    <img src="candle.png">
+    <div class="item-title">Candle</div>
+    <div class="item-price">—</div>
+  </div>
 
-    bagBtn.onclick = () => { window.location.href = "cart.html"; };
-  </script>
+  <div class="item" onclick="addToCart('Labor 27%', 'Environment 67%', 'CEO 1100×')">
+    <img src="waterbottle.png">
+    <div class="item-title">Water Bottle</div>
+    <div class="item-price">—</div>
+  </div>
+
+  <div class="item" onclick="addToCart('Labor 41%', 'Environment 72%', 'CEO 450×')">
+    <img src="lipbalm.png">
+    <div class="item-title">Lip Balm</div>
+    <div class="item-price">—</div>
+  </div>
+
+</div>
+
+<footer>© 2025 REAL SHOP — A critical design project</footer>
+
+
+<script>
+function addToCart(labor, env, ceo) {
+  const item = { labor, env, ceo };
+  localStorage.setItem("selectedItem", JSON.stringify(item));
+  location.href = "checkout.html";
+}
+</script>
+
 </body>
 </html>
