@@ -1,293 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Receipt</title>
-
-<!-- html2canvas -->
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
-<!-- Printer sound -->
-<audio id="printSound" src="printer.mp3" preload="auto"></audio>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REAL SHOP – Detail</title>
 
 <style>
     body {
-        background: #ffffff;
+        margin: 0;
+        background: #FFFFFF;
         font-family: 'Gotham', sans-serif;
+    }
+
+    .top {
+        width: 100%;
+        padding: 24px 40px;
         display: flex;
         justify-content: center;
-        padding-top: 60px;
+        font-size: 26px;
+        font-weight: 600;
+        letter-spacing: 1px;
     }
 
-    #receipt-wrapper {
-        width: 380px;
-        background: white;
-        padding: 30px 25px;
-        border-radius: 8px;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-        border: 1px solid #eee;
-        animation: printDown 1.8s ease-out forwards;
-        white-space: pre-wrap;
-        font-size: 14px;
-        line-height: 1.55;
+    .detail-wrapper {
+        margin-top: 60px;
+        display: flex;
+        justify-content: center;
+        gap: 80px;
+        padding: 40px;
+        align-items: center;
     }
 
-    @keyframes printDown {
-        0% { transform: translateY(-80px); opacity: 0; }
-        100% { transform: translateY(0); opacity: 1; }
+    .image {
+        width: 480px;
     }
 
-    h2 {
-        font-family: 'Gotham-Bold', sans-serif;
-        font-size: 20px;
-        margin-bottom: 18px;
-    }
-
-    .line {
-        border-bottom: 1px dashed #ccc;
-        margin: 18px 0;
-    }
-
-    #downloadBtn {
-        margin-top: 22px;
+    .image img {
         width: 100%;
-        padding: 14px 0;
-        border: none;
+    }
+
+    .right {
+        width: 360px;
+    }
+
+    .item-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .item-sub {
+        font-size: 14px;
+        margin-bottom: 30px;
+        opacity: 0.7;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 16px 0;
+        text-align: center;
+        background: #000;
+        color: #fff;
+        margin-top: 10px;
         border-radius: 6px;
-        background: black;
-        color: white;
-        font-family: 'Gotham-Bold';
-        font-size: 15px;
+        font-weight: 600;
         cursor: pointer;
         transition: 0.2s;
+        font-size: 14px;
     }
-    #downloadBtn:hover {
+
+    .btn:hover {
         background: #333;
+    }
+
+    .info-title {
+        margin-top: 40px;
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .info-text {
+        font-size: 14px;
+        line-height: 1.6;
+        opacity: 0.75;
     }
 </style>
 </head>
 
 <body>
 
-<div id="receipt-wrapper">
+<div class="top">REAL SHOP</div>
 
-<h2>Receipt</h2>
-<div class="line"></div>
+<div class="detail-wrapper">
 
-<div id="content"></div>
+    <div class="image">
+        <img id="productImg">
+    </div>
 
-<div class="line"></div>
+    <div class="right">
+        <div class="item-title" id="title"></div>
+        <div class="item-sub">Everyday product · hidden cost</div>
 
-<button id="downloadBtn">Download receipt</button>
+        <div class="btn" id="goHiddenBtn">
+            see the hidden cost →
+        </div>
 
+        <div class="info-title">Description</div>
+        <div class="info-text" id="desc"></div>
+    </div>
 </div>
 
 <script>
-// --------------------------
-// 1) Real Cost DATABASE
-// --------------------------
-const DATA = {
-    iphone: `
-1. Smartphone (iPhone archetype)
-
-Labor
-- Assembly worker wage: $2.50–$3.00/hour
-- Peak season: 60+ hours/week, forced overtime common
-- History of severe labor-rights issues (e.g., suicide-prevention nets installed at factories)
-
-Environment
-- 80% of total carbon emissions occur during manufacturing
-- Designed-to-fail repairs → contributes to e-waste crisis
-- Cobalt mining linked to child labor and soil contamination (DR Congo)
-
-Capital
-- CEO-to-worker pay ratio: 1,447:1
-- Only 1–2% of the phone’s price goes to assembly labor
-- 50–60% of profit flows to corporate margin + licensing
-
-Supply Chain
-California → DR Congo → Taiwan/Korea → China → Global distribution
-`,
-
-    earbuds: `
-2. Wireless Earbuds
-
-Labor
-- Production relocated to Vietnam and China → sustained low-wage dependency
-
-Environment
-- Repairability score: 0/10 (battery glued inside)
-- Short lifespan (~2 years) → fully disposable
-- Lithium-ion + adhesives → nearly unrecyclable
-
-Capital
-- Extremely high-margin accessory; higher ROI than smartphones
-
-Supply Chain
-Vietnam/China → Consumers → Landfill
-`,
-
-    water: `
-3. Bottled Water
-
-Labor
-- Labor mostly in trucking/logistics
-
-Environment
-- Plastic bottle takes 450–500 years to decompose
-- 1L bottled water requires 3L water + 0.25L oil
-- Opening the bottle releases microplastics
-
-Capital
-- Water source cost ≈ $0
-- Consumers pay for bottle + brand
-- Corporations secure exclusive groundwater rights
-
-Supply Chain
-Aquifer → Plastic factory → Retail → Oceans/Landfill
-`,
-
-    lipbalm: `
-4. Lip Balm / Cosmetics
-
-Labor
-- Mica mining uses child labor (ages 5–10)
-- Palm oil plantations tied to forced labor
-
-Environment
-- Multi-layer plastic packaging is non-recyclable
-- Palm oil drives tropical deforestation & habitat loss
-
-Capital
-- Controlled by multinational beauty conglomerates
-
-Supply Chain
-India/SE Asia → US/Europe → Consumers
-`,
-
-    coffee: `
-5. Coffee (Iced Latte archetype)
-
-Labor
-- Farmers earn $0.02–$0.05 from a $4 latte (~1%)
-- 80%+ of farmers live near/below poverty line
-
-Environment
-- One cup = 130–140L of water
-- Disposable cups/lids contribute to waste
-
-Capital
-- Prices controlled by New York/London markets
-- Farmers lack pricing power
-
-Supply Chain
-Ethiopia/Colombia → EU/US → Consumers
-`,
-
-    candle: `
-6. Scented Candle
-
-Labor
-- Manufactured in poorly ventilated factories in China/SE Asia
-
-Environment
-- Paraffin wax = petroleum byproduct
-- Burning releases benzene/toluene
-- Impacts indoor air quality
-
-Capital
-- Low-cost, high-margin product marketed as “wellness”
-
-Supply Chain
-Oil refinery → Candle factory → Retail
-`,
-
-    tshirt: `
-7. Cotton T-Shirt
-
-Labor
-- Bangladesh garment workers earn $80–$95/month
-- Rana Plaza collapse (2013): 1,134 deaths
-
-Environment
-- One shirt = 2,700L of water
-- Fashion = 20% of global industrial wastewater
-
-Capital
-- Extreme CEO-worker wealth gap
-- Unsold clothing often shredded/incinerated
-
-Supply Chain
-USA/India → China/Vietnam → Bangladesh → Retail → Global textile waste sites
-`
-};
-
-
-// --------------------------
-// 2) Auto-detect item parameter
-// --------------------------
-const params = new URLSearchParams(window.location.search);
-
-// most likely param names
-let item =
-    params.get("item") ||
-    params.get("product") ||
-    params.get("name") ||
-    params.get("id");
-
-// if URL is like ?iphone
-if (!item) {
-    for (const [key] of params) {
-        if (DATA[key]) item = key;
+/* 1. 데이터 정의 */
+const items = {
+    iphone: {
+        title: "iPhone",
+        img: "iphone.png",
+        desc: "Minimal everyday product view. Click the button above to explore the true cost behind this item."
+    },
+    earbuds: {
+        title: "Wireless Earbuds",
+        img: "earbuds.png",
+        desc: "Compact and convenient audio device. Discover the hidden labor and environmental cost behind it."
+    },
+    lipbalm: {
+        title: "Lip Balm",
+        img: "lipbalm.png",
+        desc: "Cosmetic essential. Learn what makes beauty products linked to global supply-chain issues."
+    },
+    waterbottle: {
+        title: "Water Bottle",
+        img: "waterbottle.png",
+        desc: "Single-use daily item. Explore why bottled water has one of the most controversial life cycles."
+    },
+    coffee: {
+        title: "Iced Coffee",
+        img: "coffee.png",
+        desc: "Everyday drink. See how global farming inequality is connected to your daily caffeine."
+    },
+    candle: {
+        title: "Scented Candle",
+        img: "candle.png",
+        desc: "Aromatic lifestyle product. Discover the petroleum-based reality behind candles."
+    },
+    tshirt: {
+        title: "Cotton T-Shirt",
+        img: "tshirt.png",
+        desc: "Simple clothing item. Learn how it became the symbol of worldwide labor exploitation."
     }
-}
-
-// fallback
-if (!item) item = "unknown";
-
-
-// --------------------------
-// 3) Insert matched data
-// --------------------------
-const receiptBox = document.getElementById("content");
-
-if (DATA[item]) {
-    receiptBox.textContent = DATA[item];
-} else {
-    receiptBox.textContent = "No data available for this item.";
-}
-
-
-// --------------------------
-// 4) Printer sound
-// --------------------------
-window.onload = () => {
-    const sound = document.getElementById("printSound");
-    sound.currentTime = 0;
-    sound.play();
 };
 
+/* 2. URL 파라미터 읽기 */
+const params = new URLSearchParams(window.location.search);
+const item = params.get("item");
 
-// --------------------------
-// 5) Screenshot + download
-// --------------------------
-document.getElementById("downloadBtn").addEventListener("click", function () {
-    const sound = document.getElementById("printSound");
-    sound.currentTime = 0;
-    sound.play();
+/* 3. 데이터 반영 */
+if (items[item]) {
+    document.getElementById("title").innerText = items[item].title;
+    document.getElementById("productImg").src = items[item].img;
+    document.getElementById("desc").innerText = items[item].desc;
 
-    setTimeout(() => {
-        html2canvas(document.getElementById("receipt-wrapper"), { scale: 2 })
-            .then(canvas => {
-                const link = document.createElement("a");
-                link.download = "receipt.png";
-                link.href = canvas.toDataURL("image/png");
-                link.click();
-            });
-    }, 400);
-});
+    document.getElementById("goHiddenBtn").onclick = () =>
+        location.href = `payment.html?item=${item}`;
+} else {
+    document.getElementById("title").innerText = "Item not found";
+    document.getElementById("desc").innerText = "Invalid item.";
+}
 </script>
 
 </body>
 </html>
+
