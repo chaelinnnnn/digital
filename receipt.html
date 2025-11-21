@@ -3,170 +3,182 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>REAL SHOP – Detail</title>
+<title>Receipt</title>
 
 <style>
     body {
-        margin: 0;
-        background: #FFFFFF;
+        background: #ffffff;
         font-family: 'Gotham', sans-serif;
-    }
-
-    .top {
-        width: 100%;
-        padding: 24px 40px;
         display: flex;
         justify-content: center;
-        font-size: 26px;
-        font-weight: 600;
-        letter-spacing: 1px;
+        padding-top: 60px;
     }
 
-    .detail-wrapper {
-        margin-top: 60px;
-        display: flex;
-        justify-content: center;
-        gap: 80px;
-        padding: 40px;
-        align-items: center;
-    }
-
-    .image {
+    #receipt-wrapper {
         width: 480px;
+        background: white;
+        padding: 40px 32px;
+        border-radius: 12px;
+        box-shadow: 0 6px 40px rgba(0,0,0,0.1);
+        border: 1px solid #eee;
     }
 
-    .image img {
-        width: 100%;
-    }
-
-    .right {
-        width: 360px;
-    }
-
-    .item-title {
+    h2 {
         font-size: 24px;
-        font-weight: 600;
-        margin-bottom: 10px;
+        font-weight: 700;
+        margin-bottom: 20px;
     }
 
-    .item-sub {
-        font-size: 14px;
-        margin-bottom: 30px;
-        opacity: 0.7;
+    .line {
+        border-bottom: 1px dashed #ccc;
+        margin: 18px 0;
     }
 
-    .btn {
+    #receiptContent {
+        white-space: pre-line;
+        font-size: 15px;
+        line-height: 1.7;
+        margin-top: 10px;
+    }
+
+    #downloadBtn {
+        margin-top: 30px;
         width: 100%;
         padding: 16px 0;
-        text-align: center;
-        background: #000;
-        color: #fff;
-        margin-top: 10px;
+        border: none;
         border-radius: 6px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.2s;
-        font-size: 14px;
-    }
-
-    .btn:hover {
-        background: #333;
-    }
-
-    .info-title {
-        margin-top: 40px;
+        background: black;
+        color: white;
         font-size: 15px;
-        font-weight: 600;
-        margin-bottom: 10px;
-    }
-
-    .info-text {
-        font-size: 14px;
-        line-height: 1.6;
-        opacity: 0.75;
+        cursor: pointer;
     }
 </style>
 </head>
 
 <body>
 
-<div class="top">REAL SHOP</div>
+<div id="receipt-wrapper">
 
-<div class="detail-wrapper">
+    <h2>Receipt</h2>
+    <div class="line"></div>
 
-    <div class="image">
-        <img id="productImg">
-    </div>
+    <div id="receiptContent">loading…</div>
 
-    <div class="right">
-        <div class="item-title" id="title"></div>
-        <div class="item-sub">Everyday product · hidden cost</div>
+    <div class="line"></div>
 
-        <div class="btn" id="goHiddenBtn">
-            see the hidden cost →
-        </div>
-
-        <div class="info-title">Description</div>
-        <div class="info-text" id="desc"></div>
-    </div>
+    <button id="downloadBtn">Download receipt</button>
 </div>
 
 <script>
-/* 1. 데이터 정의 */
-const items = {
-    iphone: {
-        title: "iPhone",
-        img: "iphone.png",
-        desc: "Minimal everyday product view. Click the button above to explore the true cost behind this item."
-    },
-    earbuds: {
-        title: "Wireless Earbuds",
-        img: "earbuds.png",
-        desc: "Compact and convenient audio device. Discover the hidden labor and environmental cost behind it."
-    },
-    lipbalm: {
-        title: "Lip Balm",
-        img: "lipbalm.png",
-        desc: "Cosmetic essential. Learn what makes beauty products linked to global supply-chain issues."
-    },
-    waterbottle: {
-        title: "Water Bottle",
-        img: "waterbottle.png",
-        desc: "Single-use daily item. Explore why bottled water has one of the most controversial life cycles."
-    },
-    coffee: {
-        title: "Iced Coffee",
-        img: "coffee.png",
-        desc: "Everyday drink. See how global farming inequality is connected to your daily caffeine."
-    },
-    candle: {
-        title: "Scented Candle",
-        img: "candle.png",
-        desc: "Aromatic lifestyle product. Discover the petroleum-based reality behind candles."
-    },
-    tshirt: {
-        title: "Cotton T-Shirt",
-        img: "tshirt.png",
-        desc: "Simple clothing item. Learn how it became the symbol of worldwide labor exploitation."
-    }
-};
-
-/* 2. URL 파라미터 읽기 */
 const params = new URLSearchParams(window.location.search);
 const item = params.get("item");
 
-/* 3. 데이터 반영 */
-if (items[item]) {
-    document.getElementById("title").innerText = items[item].title;
-    document.getElementById("productImg").src = items[item].img;
-    document.getElementById("desc").innerText = items[item].desc;
+const data = {
+iphone: `Labor
+- Assembly worker wage: $2.50–$3.00/hour
+- Peak season: 60+ hours/week, forced overtime common
+- History of severe labor-rights issues (e.g., suicide-prevention nets installed at factories)
 
-    document.getElementById("goHiddenBtn").onclick = () =>
-        location.href = `payment.html?item=${item}`;
-} else {
-    document.getElementById("title").innerText = "Item not found";
-    document.getElementById("desc").innerText = "Invalid item.";
-}
+Environment
+- 80% of total carbon emissions occur during manufacturing
+- Designed-to-fail repairs → contributes to e-waste crisis
+- Cobalt mining linked to child labor and soil contamination (DR Congo)
+
+Capital
+- CEO-to-worker pay ratio: 1,447:1
+- Only 1–2% of the phone’s price goes to assembly labor
+- 50–60% of profit flows to corporate margin + licensing
+
+Supply Chain
+California (design) → DR Congo (mining) → Taiwan/Korea (components) → China (assembly) → Global distribution`,
+
+earbuds: `Labor
+- Low-wage manufacturing in Vietnam/China
+
+Environment
+- Repairability score: 0/10
+- Disposable battery → device becomes waste
+- Lithium-ion + adhesives = unrecyclable
+
+Capital
+- Extremely high-margin accessory
+
+Supply Chain
+Vietnam/China → Consumer → Landfill`,
+
+waterbottle: `Labor
+- Automated production; long-haul trucking labor
+
+Environment
+- Plastic takes 450–500 years to decompose
+- 1L bottled water requires 3L water + 0.25L oil
+- Microplastic released when opened
+
+Capital
+- Water is nearly free; consumers pay for bottle + branding
+
+Supply Chain
+Aquifer → Plastic plant → Retail → Ocean garbage patches`,
+
+lipbalm: `Labor
+- Mica mining by children (ages 5–10)
+- Palm oil linked to forced labor
+
+Environment
+- Multilayer plastic → unrecyclable
+- Palm oil drives deforestation
+
+Capital
+- Beauty controlled by mega corporations
+
+Supply Chain
+India/SE Asia → US/Europe → Consumers`,
+
+coffee: `Labor
+- $4 latte gives farmers $0.02–$0.05
+- 80% live near/below poverty
+
+Environment
+- 130–140L of water per cup
+- Waste from cups/lids
+
+Capital
+- Global prices controlled by finance markets
+
+Supply Chain
+Ethiopia/Colombia → EU/US → Consumers`,
+
+candle: `Labor
+- Poor ventilation factories in Asia
+
+Environment
+- Paraffin = petroleum byproduct
+- Emits benzene/toluene indoors
+
+Capital
+- Low-cost, high-margin “wellness” item
+
+Supply Chain
+Oil refinery → Factory → Retail`,
+
+tshirt: `Labor
+- Bangladesh workers earn $80–$95/month
+- Rana Plaza collapse: 1,134 deaths
+
+Environment
+- 2,700L water per shirt
+- Fashion = 20% global wastewater
+
+Capital
+- Fast fashion: CEO billionaires vs minimum-wage workers
+- Unsold stock often destroyed
+
+Supply Chain
+USA/India → China/Vietnam → Bangladesh → Retail → Waste sites`
+};
+
+document.getElementById("receiptContent").innerText =
+    data[item] || "No data available for this item.";
 </script>
 
 </body>
