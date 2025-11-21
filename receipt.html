@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Receipt</title>
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -22,9 +22,9 @@
         background: white;
         padding: 30px 25px;
         border-radius: 12px;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
         border: 1px solid #eee;
-        animation: printDown 1.5s ease-out forwards;
+        animation: printDown 1.8s ease-out forwards;
     }
 
     @keyframes printDown {
@@ -32,33 +32,43 @@
         100% { transform: translateY(0); opacity: 1; }
     }
 
-    h2 { font-size: 22px; margin-bottom: 20px; font-weight: 700; }
-    .line { border-bottom: 1px dashed #ccc; margin: 20px 0; }
+    h2 {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .line {
+        border-bottom: 1px dashed #ccc;
+        margin: 20px 0;
+    }
 
     .section-title {
-        font-size: 16px;
-        font-weight: 600;
-        margin-top: 14px;
+        font-size: 15px;
+        font-weight: 700;
+        margin-top: 18px;
         margin-bottom: 6px;
     }
 
-    .section-text {
+    .value {
+        white-space: pre-line;
         font-size: 14px;
-        line-height: 1.55;
         margin-bottom: 12px;
+        line-height: 1.45;
     }
 
     #downloadBtn {
-        margin-top: 22px;
+        margin-top: 25px;
         width: 100%;
         padding: 14px 0;
         border: none;
         border-radius: 6px;
         background: black;
         color: white;
-        font-size: 15px;
         font-weight: 600;
+        font-size: 15px;
         cursor: pointer;
+        transition: 0.2s;
     }
 </style>
 </head>
@@ -69,71 +79,79 @@
     <h2>Receipt</h2>
     <div class="line"></div>
 
-    <div id="content"></div>
+    <div id="content">Loading...</div>
 
     <div class="line"></div>
     <button id="downloadBtn">Download receipt</button>
 </div>
 
+
 <script>
+// 🔥 모든 데이터 여기 저장됨
 const data = {
-    iphone: `
+    iphone: {
+        labor: `- Assembly worker wage: $2.50–$3.00/hour
+- Peak season: 60+ hours/week, forced overtime common
+- Severe labor-rights issues (e.g., suicide-prevention nets)`,
+        env: `- 80% of carbon emissions occur during manufacturing
+- Designed-to-fail repairs → e-waste
+- Cobalt mining tied to child labor (DR Congo)`,
+        capital: `- CEO-to-worker ratio: 1,447:1
+- Only 1–2% of price goes to labor
+- 50–60% margin + licensing`,
+        supply: `California → DR Congo → Taiwan/Korea → China → Global`
+    }
+};
+
+// GET item
+const p = new URLSearchParams(window.location.search);
+const item = p.get("item");
+
+const content = document.getElementById("content");
+
+// 데이터 존재 확인
+if (!data[item]) {
+    content.innerHTML = "<b>No data found for this item.</b>";
+} else {
+    const d = data[item];
+
+    content.innerHTML = `
         <div class="section-title">Labor</div>
-        <div class="section-text">
-        - Assembly worker wage: $2.50–$3.00/hour<br>
-        - Peak season: 60+ hours/week, forced overtime common<br>
-        - Severe labor-rights issues (suicide-prevention nets)
-        </div>
+        <div class="value">${d.labor}</div>
 
         <div class="section-title">Environment</div>
-        <div class="section-text">
-        - 80% of emissions from manufacturing<br>
-        - Designed-to-fail repairs (e-waste)<br>
-        - Cobalt mining linked to child labor (DR Congo)
-        </div>
+        <div class="value">${d.env}</div>
 
         <div class="section-title">Capital</div>
-        <div class="section-text">
-        - CEO-to-worker ratio: 1,447:1<br>
-        - Only 1–2% goes to assembly labor<br>
-        - 50–60% corporate margin + licensing
-        </div>
+        <div class="value">${d.capital}</div>
 
         <div class="section-title">Supply Chain</div>
-        <div class="section-text">
-        California → DR Congo → Taiwan/Korea → China → Global
-        </div>
-    `,
+        <div class="value">${d.supply}</div>
+    `;
+}
 
-    // 다른 아이템도 여기 동일 구조로 입력하면 됨
-};
-
-const params = new URLSearchParams(window.location.search);
-const item = params.get("item");
-
-document.getElementById("content").innerHTML =
-    data[item] ? data[item] : "<div>No data available for this item.</div>";
-
+// 프린터 사운드
 window.onload = () => {
-    const s = document.getElementById("printSound");
-    s.currentTime = 0;
-    s.play();
+    const sound = document.getElementById("printSound");
+    sound.currentTime = 0;
+    sound.play();
 };
 
+// 다운로드
 document.getElementById("downloadBtn").addEventListener("click", () => {
-    const s = document.getElementById("printSound");
-    s.currentTime = 0;
-    s.play();
+    const sound = document.getElementById("printSound");
+    sound.currentTime = 0;
+    sound.play();
 
     setTimeout(() => {
         html2canvas(document.getElementById("receipt-wrapper"), { scale: 2 })
-            .then(canvas => {
-                const link = document.createElement("a");
-                link.download = "receipt.png";
-                link.href = canvas.toDataURL("image/png");
-                link.click();
-            });
-    }, 500);
+        .then(canvas => {
+            const link = document.createElement("a");
+            link.download = "receipt.png";
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+    }, 400);
 });
 </script>
 
