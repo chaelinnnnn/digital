@@ -1,105 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Receipt</title>
-<meta name="viewport" content="width=device-width">
+
+<!-- html2canvas -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<!-- Printer sound -->
+<audio id="printSound" src="printer.mp3" preload="auto"></audio>
 
 <style>
-@font-face { font-family:'Gotham-Regular'; src:url('fonts/Gotham-Regular.otf'); }
-@font-face { font-family:'Gotham-Medium'; src:url('fonts/Gotham-Medium.otf'); }
-@font-face { font-family:'Gotham-Bold'; src:url('fonts/Gotham-Bold.otf'); }
+    body {
+        background: #ffffff;
+        font-family: 'Gotham', sans-serif;
+        display: flex;
+        justify-content: center;
+        padding-top: 60px;
+    }
 
-body {
-  margin: 0;
-  background: white;
-  font-family:'Gotham-Regular';
-  height: 100vh;
+    #receipt-wrapper {
+        width: 380px;
+        background: white;
+        padding: 30px 25px;
+        border-radius: 8px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        border: 1px solid #eee;
+        animation: printDown 1.8s ease-out forwards;
+    }
 
-  background-image: radial-gradient(rgba(0,0,0,0) 1px, transparent 1px);
-  background-size: 10px 10px;
-}
+    @keyframes printDown {
+        0% { transform: translateY(-80px); opacity: 0; }
+        100% { transform: translateY(0); opacity: 1; }
+    }
 
-.wrapper {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  padding-top: 40px;
-}
+    h2 {
+        font-family: 'Gotham-Bold', sans-serif;
+        font-size: 20px;
+        margin-bottom: 18px;
+    }
 
-.receipt {
-  width: 360px;
-  background:#fffef9;
-  border-radius:12px;
-  padding: 38px 30px 50px;
-  box-shadow:0 20px 55px rgba(0,0,0,0.18);
+    .line {
+        border-bottom: 1px dashed #ccc;
+        margin: 18px 0;
+    }
 
-  transform: translateY(-120%);
-  animation: drop 2.2s ease-out forwards;
-}
+    .label {
+        font-size: 14px;
+        margin-bottom: 6px;
+    }
 
-@keyframes drop {
-  0% { transform: translateY(-120%); }
-  100% { transform: translateY(0); }
-}
+    .value {
+        font-family: 'Gotham-Bold';
+        margin-bottom: 10px;
+        font-size: 15px;
+    }
 
-h1 {
-  font-family:'Gotham-Bold';
-  text-align:center;
-  margin-bottom:20px;
-}
-
-.line {
-  height:1px;
-  background:#ddd;
-  margin:25px 0;
-}
-
-.entry {
-  font-family:'Gotham-Medium';
-  margin-bottom: 14px;
-  font-size: 15px;
-}
-
-.footer {
-  margin-top: 18px;
-  text-align:center;
-  font-size: 12px;
-  opacity:0.7;
-}
+    /* Download button */
+    #downloadBtn {
+        margin-top: 22px;
+        width: 100%;
+        padding: 14px 0;
+        border: none;
+        border-radius: 6px;
+        background: black;
+        color: white;
+        font-family: 'Gotham-Bold';
+        font-size: 15px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    #downloadBtn:hover {
+        background: #333;
+    }
 </style>
 </head>
 
 <body>
 
-<audio id="sound">
-  <source src="printer.mp3" type="audio/mpeg">
-</audio>
+<div id="receipt-wrapper">
 
-<div class="wrapper">
-  <div class="receipt">
-
-    <h1>IMPACT RECEIPT</h1>
-
-    <div class="entry">Labor impact: 78%</div>
-    <div class="entry">Environmental impact: 82%</div>
-    <div class="entry">CEO ratio: 1500×</div>
+    <h2>Receipt</h2>
 
     <div class="line"></div>
 
-    <div class="footer">
-      Thank you for checking the real cost.
-    </div>
+    <div class="label">Labor impact</div>
+    <div class="value" id="labor"></div>
 
-  </div>
+    <div class="label">Environmental impact</div>
+    <div class="value" id="env"></div>
+
+    <div class="label">CEO ratio</div>
+    <div class="value" id="ceo"></div>
+
+    <div class="line"></div>
+
+    <button id="downloadBtn">Download receipt</button>
 </div>
 
+
 <script>
+// 🌟 Load data from previous page
+const params = new URLSearchParams(window.location.search);
+document.getElementById("labor").innerText = params.get("labor") + "%";
+document.getElementById("env").innerText = params.get("env") + "%";
+document.getElementById("ceo").innerText = params.get("ceo") + "×";
+
+// 🔊 Play printer sound on load
 window.onload = () => {
-  const snd = document.getElementById("sound");
-  snd.volume = 0.5;
-  setTimeout(()=> snd.play(), 350);
+    const sound = document.getElementById("printSound");
+    sound.currentTime = 0;
+    sound.play();
 };
+
+// 🧾 Screenshot + auto download
+document.getElementById("downloadBtn").addEventListener("click", function () {
+
+    // Play printing sound
+    const sound = document.getElementById("printSound");
+    sound.currentTime = 0;
+    sound.play();
+
+    setTimeout(() => {
+        html2canvas(document.getElementById("receipt-wrapper"), { scale: 2 })
+            .then(canvas => {
+                const link = document.createElement("a");
+                link.download = "receipt.png";
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            });
+    }, 400);
+});
 </script>
 
 </body>
