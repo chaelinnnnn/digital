@@ -1,159 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Receipt – REAL shop</title>
+<meta charset="UTF-8">
+<title>Receipt</title>
+<meta name="viewport" content="width=device-width">
 
-  <style>
-    /* -------------------- FONTS -------------------- */
-    @font-face {
-      font-family:'GothamRegular';
-      src:url('Gotham-Regular.otf') format('opentype');
-    }
-    @font-face {
-      font-family:'GothamMedium';
-      src:url('Gotham-Medium.otf') format('opentype');
-    }
-    @font-face {
-      font-family:'GothamBold';
-      src:url('Gotham-Bold.otf') format('opentype');
-    }
+<style>
+@font-face { font-family:'Gotham-Regular'; src:url('fonts/Gotham-Regular.otf'); }
+@font-face { font-family:'Gotham-Medium'; src:url('fonts/Gotham-Medium.otf'); }
+@font-face { font-family:'Gotham-Bold'; src:url('fonts/Gotham-Bold.otf'); }
 
-    /* -------------------- BODY -------------------- */
-    body {
-      margin: 0;
-      background: #ffffff;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding-top: 40px;
-      overflow-x: hidden;
-      overflow-y: auto;
-      font-family: 'GothamRegular';
-    }
+body {
+  margin: 0;
+  background: white;
+  font-family:'Gotham-Regular';
+  height: 100vh;
 
-    /* subtle paper texture */
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 1px);
-      background-size: 3px 3px;
-      pointer-events: none;
-      opacity: 0.25;
-    }
+  background-image: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 1px);
+  background-size: 10px 10px;
+}
 
-    /* -------------------- RECEIPT -------------------- */
-    .receipt {
-      width: 360px;
-      background: #fffef9;
-      padding: 40px 32px 50px;
-      box-shadow: 0px 20px 55px rgba(0,0,0,0.18);
-      border-radius: 0 0 10px 10px;
-      font-family: 'GothamMedium';
-      
-      /* animation */
-      opacity: 0;
-      transform: translateY(-120%);
-      animation: drop 1.4s ease-out forwards;
-      position: relative;
-    }
+.wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: 40px;
+}
 
-    /* -------------------- TOP TEAR (round saw teeth) -------------------- */
-    .receipt::before {
-      content: "";
-      position: absolute;
-      top: -14px;
-      left: 0;
-      width: 100%;
-      height: 14px;
-      background:
-        radial-gradient(circle at 12px 14px, transparent 14px, #fffef9 15px),
-        radial-gradient(circle at 36px 14px, transparent 14px, #fffef9 15px),
-        radial-gradient(circle at 60px 14px, transparent 14px, #fffef9 15px),
-        radial-gradient(circle at 84px 14px, transparent 14px, #fffef9 15px),
-        radial-gradient(circle at 108px 14px, transparent 14px, #fffef9 15px),
-        radial-gradient(circle at 132px 14px, transparent 14px, #fffef9 15px),
-        radial-gradient(circle at 156px 14px, transparent 14px, #fffef9 15px),
-        radial-gradient(circle at 180px 14px, transparent 14px, #fffef9 15px),
-        radial-gradient(circle at 204px 14px, transparent 14px, #fffef9 15px),
-        radial-gradient(circle at 228px 14px, transparent 14px, #fffef9 15px),
-        radial-gradient(circle at 252px 14px, transparent 14px, #fffef9 15px),
-        radial-gradient(circle at 276px 14px, transparent 14px, #fffef9 15px),
-        radial-gradient(circle at 300px 14px, transparent 14px, #fffef9 15px),
-        radial-gradient(circle at 324px 14px, transparent 14px, #fffef9 15px),
-        radial-gradient(circle at 348px 14px, transparent 14px, #fffef9 15px);
-    }
+.receipt {
+  width: 360px;
+  background:#fffef9;
+  border-radius:12px;
+  padding: 38px 30px 50px;
+  box-shadow:0 20px 55px rgba(0,0,0,0.18);
 
-    /* -------------------- ANIMATION -------------------- */
-    @keyframes drop {
-      0% { transform: translateY(-120%); opacity: 0; }
-      60% { transform: translateY(8%); opacity: 1; }
-      80% { transform: translateY(-3%); }
-      100% { transform: translateY(0); }
-    }
+  transform: translateY(-120%);
+  animation: drop 2.2s ease-out forwards;
+}
 
-    /* -------------------- TEXT -------------------- */
-    h1 {
-      margin: 0 0 18px;
-      font-family: 'GothamBold';
-      font-size: 22px;
-      letter-spacing: 0.04em;
-      text-align: center;
-    }
+@keyframes drop {
+  0% { transform: translateY(-120%); }
+  100% { transform: translateY(0); }
+}
 
-    .section-label {
-      font-size: 13px;
-      font-family: 'GothamMedium';
-      margin-bottom: 6px;
-      opacity: 0.75;
-    }
+h1 {
+  font-family:'Gotham-Bold';
+  text-align:center;
+  margin-bottom:20px;
+}
 
-    .info {
-      font-size: 15px;
-      margin-bottom: 20px;
-      font-family: 'GothamBold';
-    }
+.line {
+  height:1px;
+  background:#ddd;
+  margin:25px 0;
+}
 
-    .footer {
-      margin-top: 28px;
-      text-align: center;
-      font-size: 12px;
-      opacity: 0.60;
-      line-height: 1.45;
-    }
-  </style>
+.entry {
+  font-family:'Gotham-Medium';
+  margin-bottom: 14px;
+  font-size: 15px;
+}
+
+.footer {
+  margin-top: 18px;
+  text-align:center;
+  font-size: 12px;
+  opacity:0.7;
+}
+</style>
 </head>
 
 <body>
 
-<div class="receipt">
-  <h1>IMPACT RECEIPT</h1>
+<audio id="sound">
+  <source src="printer.mp3" type="audio/mpeg">
+</audio>
 
-  <div class="section-label">Labor impact</div>
-  <div class="info" id="labor"></div>
+<div class="wrapper">
+  <div class="receipt">
 
-  <div class="section-label">Environmental impact</div>
-  <div class="info" id="env"></div>
+    <h1>IMPACT RECEIPT</h1>
 
-  <div class="section-label">CEO ratio</div>
-  <div class="info" id="ceo"></div>
+    <div class="entry">Labor impact: 78%</div>
+    <div class="entry">Environmental impact: 82%</div>
+    <div class="entry">CEO ratio: 1500×</div>
 
-  <div class="footer">
-    Thank you for revealing the hidden labor,<br>
-    environmental, and corporate impacts<br>
-    behind everyday objects.
+    <div class="line"></div>
+
+    <div class="footer">
+      Thank you for checking the real cost.
+    </div>
+
   </div>
 </div>
 
 <script>
-  const item = JSON.parse(localStorage.getItem("selectedItem"));
-
-  document.getElementById("labor").innerText = item.labor;
-  document.getElementById("env").innerText = item.env;
-  document.getElementById("ceo").innerText = item.ceo;
+window.onload = () => {
+  const snd = document.getElementById("sound");
+  snd.volume = 0.5;
+  setTimeout(()=> snd.play(), 350);
+};
 </script>
 
 </body>
