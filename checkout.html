@@ -1,282 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <title>Checkout – REAL shop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bag – REAL shop</title>
 
   <style>
+    /* FONTS */
     @font-face {
-      font-family: 'Gotham';
+      font-family: 'GothamRegular';
       src: url('Gotham-Regular.otf') format('opentype');
-      font-weight: 400;
     }
     @font-face {
-      font-family: 'Gotham';
+      font-family: 'GothamMedium';
       src: url('Gotham-Medium.otf') format('opentype');
-      font-weight: 500;
     }
     @font-face {
-      font-family: 'Gotham';
+      font-family: 'GothamBold';
       src: url('Gotham-Bold.otf') format('opentype');
-      font-weight: 700;
     }
-    @font-face {
-      font-family: 'Gotham';
-      src: url('Gotham-Ultra.otf') format('opentype');
-      font-weight: 900;
-    }
-
-    * { box-sizing:border-box; }
 
     body {
-      margin:0;
-      padding:32px 24px 40px;
-      background:#f5f5f7;
-      font-family:'Gotham', system-ui, sans-serif;
-      font-weight:400;
-      color:#111;
+      margin: 0;
+      background: #fafafa;
+      font-family: 'GothamRegular';
+      color: #111;
     }
 
+    header {
+      padding: 22px 60px;
+      display: flex;
+      justify-content: space-between;
+      font-family: 'GothamBold';
+      font-size: 14px;
+    }
+
+    /* LAYOUT */
     .container {
-      max-width:1100px;
-      margin:0 auto;
+      width: 100%;
+      display: flex;
+      padding: 60px 100px;
+      box-sizing: border-box;
     }
 
-    .header-row {
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:26px;
+    .left-area {
+      width: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-    .header-row h1 {
-      margin:0;
-      font-size:26px;
-      font-weight:700;
-    }
-    .header-sub {
-      font-size:13px;
-      opacity:0.7;
-    }
-    .close-link {
-      font-size:14px;
-      opacity:0.7;
-      cursor:pointer;
+    .left-area img {
+      width: 65%;
+      filter: drop-shadow(0 20px 30px rgba(0,0,0,0.1));
     }
 
-    .layout {
-      display:flex;
-      gap:40px;
-      align-items:flex-start;
+    .right-area {
+      width: 50%;
+      padding-left: 50px;
+      box-sizing: border-box;
+      font-family: 'GothamMedium';
     }
 
-    .form-col {
-      flex:2;
-      background:#fff;
-      border-radius:24px;
-      padding:24px 24px 30px;
-    }
-    .summary-col {
-      flex:1;
-      background:#fff;
-      border-radius:24px;
-      padding:22px;
-      position:sticky;
-      top:32px;
+    .impact-box {
+      margin-top: 10px;
+      line-height: 1.9;
+      font-size: 15px;
     }
 
-    .section-title {
-      font-size:15px;
-      font-weight:600;
-      margin-top:4px;
-      margin-bottom:10px;
-    }
-    .section-sub {
-      font-size:12px;
-      opacity:0.7;
-      margin-bottom:12px;
-    }
-
-    label {
-      display:block;
-      font-size:12px;
-      margin:8px 0 4px;
-    }
-    input {
-      width:100%;
-      padding:8px 10px;
-      border-radius:10px;
-      border:1px solid #d2d2d7;
-      font-family:'Gotham';
-      font-size:13px;
-      background:#fdfdfd;
-    }
-    .row {
-      display:flex;
-      gap:10px;
+    /* BUTTON */
+    .checkout-btn {
+      margin-top: 35px;
+      width: 260px;
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: 'GothamBold';
+      background: #000;
+      color: #fff;
+      text-align: center;
+      cursor: pointer;
     }
 
-    .summary-title {
-      font-weight:600;
-      margin-bottom:10px;
-      font-size:15px;
-    }
-    .summary-line {
-      display:flex;
-      justify-content:space-between;
-      font-size:13px;
-      margin:4px 0;
-    }
-    .summary-total {
-      margin-top:10px;
-      padding-top:10px;
-      border-top:1px solid #eee;
-      font-weight:500;
-    }
-    .primary-btn {
-      margin-top:18px;
-      width:100%;
-      padding:12px 0;
-      border:none;
-      border-radius:999px;
-      background:#111;
-      color:#fff;
-      font-family:'Gotham';
-      font-weight:500;
-      font-size:14px;
-      cursor:pointer;
-    }
-    .fine {
-      margin-top:8px;
-      font-size:11px;
-      opacity:0.7;
-      line-height:1.4;
-    }
-
-    @media(max-width:900px){
-      .layout { flex-direction:column; }
-      .summary-col { position:static; }
+    .back-link {
+      margin-top: 20px;
+      display: inline-block;
+      font-size: 13px;
+      opacity: 0.6;
+      cursor: pointer;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <div class="header-row">
-      <div>
-        <h1>Checkout</h1>
-        <div class="header-sub">You are about to pay with impact instead of money.</div>
-      </div>
-      <div class="close-link" onclick="back()">✕</div>
+
+<header>
+  <div>REAL SHOP</div>
+  <div onclick="location.href='index.html'" style="cursor:pointer;">Home</div>
+</header>
+
+<div class="container">
+
+  <div class="left-area">
+    <img id="itemImage" src="">
+  </div>
+
+  <div class="right-area">
+    <h2 style="font-family:GothamBold; margin-bottom:25px;">
+      Bag
+    </h2>
+
+    <div class="impact-box" id="impactInfo"></div>
+
+    <div class="checkout-btn" onclick="location.href='payment.html'">
+      Proceed to checkout
     </div>
 
-    <div class="layout">
-      <div class="form-col">
-        <div class="section-title">Contact</div>
-        <div class="section-sub">We will not actually collect this information.</div>
-
-        <label>Email</label>
-        <input placeholder="name@example.com">
-
-        <div class="row">
-          <div style="flex:1;">
-            <label>First name</label>
-            <input>
-          </div>
-          <div style="flex:1;">
-            <label>Last name</label>
-            <input>
-          </div>
-        </div>
-
-        <div class="section-title" style="margin-top:20px;">Shipping address</div>
-
-        <label>Street address</label>
-        <input>
-
-        <div class="row">
-          <div style="flex:1;">
-            <label>City</label>
-            <input>
-          </div>
-          <div style="flex:1;">
-            <label>Postal code</label>
-            <input>
-          </div>
-        </div>
-
-        <div class="section-title" style="margin-top:20px;">Payment</div>
-        <div class="section-sub">Fake card fields for this project only.</div>
-
-        <label>Card number</label>
-        <input placeholder="1234 1234 1234 1234">
-
-        <div class="row">
-          <div style="flex:1;">
-            <label>Expiry</label>
-            <input placeholder="MM / YY">
-          </div>
-          <div style="flex:1;">
-            <label>CVC</label>
-            <input placeholder="123">
-          </div>
-        </div>
-      </div>
-
-      <div class="summary-col" id="summary">
-        <div class="summary-title">Impact summary</div>
-        <div class="summary-line"><span>Items</span><span id="sum-items">0</span></div>
-        <div class="summary-line"><span>Avg labor</span><span id="sum-labor">–</span></div>
-        <div class="summary-line"><span>Avg environment</span><span id="sum-env">–</span></div>
-        <div class="summary-line"><span>Avg CEO ratio</span><span id="sum-ceo">–</span></div>
-
-        <div class="summary-line summary-total">
-          <span>Total impact</span><span id="sum-total">–</span>
-        </div>
-
-        <button class="primary-btn" onclick="pay()">Pay with this impact</button>
-        <div class="fine">By continuing, you agree to receive a receipt that shows impact instead of price.</div>
-      </div>
+    <div class="back-link" onclick="location.href='index.html'">
+      ← Keep shopping
     </div>
   </div>
 
-  <script>
-    let bag = JSON.parse(localStorage.getItem("impactBag") || "[]");
+</div>
 
-    const sumItems = document.getElementById("sum-items");
-    const sumLabor = document.getElementById("sum-labor");
-    const sumEnv   = document.getElementById("sum-env");
-    const sumCeo   = document.getElementById("sum-ceo");
-    const sumTotal = document.getElementById("sum-total");
+<script>
+  const item = JSON.parse(localStorage.getItem("selectedItem"));
 
-    if (bag.length === 0){
-      sumItems.textContent = "0";
-      sumLabor.textContent = "–";
-      sumEnv.textContent   = "–";
-      sumCeo.textContent   = "–";
-      sumTotal.textContent = "–";
-    } else {
-      let tL=0,tE=0,tC=0;
-      bag.forEach(i=>{
-        tL += Number(i.labor);
-        tE += Number(i.env);
-        tC += Number(i.extra);
-      });
-      const n = bag.length;
-      const avgL = Math.round(tL/n);
-      const avgE = Math.round(tE/n);
-      const avgC = Math.round(tC/n);
+  document.getElementById("impactInfo").innerHTML = `
+    Labor impact: <b>${item.labor}</b><br>
+    Environmental impact: <b>${item.env}</b><br>
+    CEO ratio: <b>${item.ceo}</b>
+  `;
 
-      sumItems.textContent = n;
-      sumLabor.textContent = avgL + "%";
-      sumEnv.textContent   = avgE + "%";
-      sumCeo.textContent   = avgC + "×";
-      sumTotal.textContent = Math.round((avgL+avgE)/2);
-    }
+  // 이미지 매칭 간단 처리
+  let imgSrc = "iphone.png";
+  if (item.labor.includes("52")) imgSrc = "tshirt.png";
+  if (item.labor.includes("61")) imgSrc = "earbuds.png";
+  if (item.labor.includes("33")) imgSrc = "candle.png";
+  if (item.labor.includes("27")) imgSrc = "waterbottle.png";
+  if (item.labor.includes("41")) imgSrc = "lipbalm.png";
 
-    function back(){ window.location.href="cart.html"; }
-    function pay(){ window.location.href="receipt.html"; }
-  </script>
+  document.getElementById("itemImage").src = imgSrc;
+</script>
+
 </body>
 </html>
-
