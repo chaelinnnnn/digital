@@ -1,163 +1,904 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>Form-Meaning-Function Experiment</title>
-    <style>
-        body {
-            font-family: 'Pretendard', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-        }
-        #instruction { margin-bottom: 20px; font-size: 1.2rem; color: #333; }
-        
-        /* 버튼 스타일 기본 */
-        #target-btn {
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            font-weight: bold;
-            padding: 20px 40px;
-            cursor: pointer;
-            transition: transform 0.1s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        #target-btn:active { transform: scale(0.95); }
+  <meta charset="UTF-8" />
+  <title>REAL SHOP – 진짜 가격을 보여주는 쇼핑몰</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        /* 형태 변수 (Form) */
-        .round-shape {
-            border-radius: 50px; /* 둥글고 안전한 형태 */
-            background-color: #2ecc71; /* 초록 (안전) */
-        }
-        .spiky-shape {
-            border-radius: 0px;
-            clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%); /* 각진 형태 */
-            background-color: #e74c3c; /* 빨강 (위험/경고) */
-            border: 2px solid #c0392b;
-        }
+  <!-- 귀여운 느낌 폰트 (원하면 바꿔도 됨) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@300;400;700&family=Pretendard&display=swap" rel="stylesheet">
 
-        #result-area { display: none; text-align: center; }
-        .data-row { margin: 10px 0; font-size: 1.1rem; }
-    </style>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --yellow: #fff46a;
+      --mint: #c8fff2;
+      --lilac: #e9e1ff;
+      --red-soft: #ff6363;
+      --gray: #111111;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      font-family: "Pretendard", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--gray);
+      overflow-x: hidden;
+    }
+
+    /* ───── 브라우저 프레임 느낌 헤더 ───── */
+
+    .fake-browser-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 32px;
+      background: #f4f4f4;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      z-index: 40;
+    }
+
+    .browser-dots {
+      display: flex;
+      gap: 6px;
+      margin-right: 12px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #ff5f57;
+    }
+
+    .dot:nth-child(2) {
+      background: #febc2e;
+    }
+
+    .dot:nth-child(3) {
+      background: #28c840;
+    }
+
+    .fake-url {
+      flex: 1;
+      height: 20px;
+      border-radius: 999px;
+      background: white;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      font-size: 11px;
+      color: #777;
+    }
+
+    main {
+      padding-top: 56px; /* 브라우저바 여백 */
+    }
+
+    /* ───── 전체 레이아웃 ───── */
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 16px 80px;
+      position: relative;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .logo {
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 32px;
+      letter-spacing: 0.12em;
+      margin-bottom: 8px;
+    }
+
+    .logo span:nth-child(2) {
+      font-size: 30px;
+      display: inline-block;
+      transform: rotate(-5deg);
+    }
+
+    .tagline {
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 14px;
+      background: var(--mint);
+      padding: 4px 10px;
+      display: inline-block;
+      border-radius: 999px;
+      transform: rotate(-2deg);
+    }
+
+    nav {
+      position: relative;
+    }
+
+    .menu-stack {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 4px;
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 13px;
+    }
+
+    .menu-item {
+      background: #ffffff;
+      border: 1px solid #111;
+      border-radius: 4px;
+      padding: 4px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 2px 2px 0 #111;
+      cursor: pointer;
+      transform: rotate(-4deg);
+    }
+
+    .menu-item:nth-child(2) {
+      transform: rotate(-1deg) translateX(8px);
+    }
+
+    .menu-item:nth-child(3) {
+      transform: rotate(3deg) translateX(16px);
+    }
+
+    .menu-item:nth-child(4) {
+      transform: rotate(-2deg) translateX(6px);
+    }
+
+    .menu-item span {
+      font-size: 10px;
+      opacity: 0.7;
+    }
+
+    .welcome-title {
+      width: 100%;
+      text-align: center;
+      margin: 40px 0 32px;
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: clamp(32px, 5vw, 44px);
+      letter-spacing: 0.18em;
+    }
+
+    .welcome-title span:nth-child(2) {
+      display: inline-block;
+      transform: translateY(-4px) rotate(-10deg);
+    }
+
+    .welcome-title span:nth-child(4) {
+      display: inline-block;
+      transform: translateY(4px) rotate(8deg);
+    }
+
+    .welcome-sub {
+      text-align: center;
+      font-size: 13px;
+      max-width: 380px;
+      margin: 0 auto 40px;
+      background: var(--lilac);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-family: "Gaegu", system-ui, sans-serif;
+      transform: rotate(-1.5deg);
+    }
+
+    /* ───── 떠다니는 종이 조각 ───── */
+
+    .paper-scrap {
+      position: absolute;
+      background: var(--yellow);
+      padding: 10px 14px;
+      font-size: 11px;
+      font-family: "Gaegu", system-ui, sans-serif;
+      border-radius: 4px;
+      box-shadow: 2px 2px 0 #11111133;
+      max-width: 180px;
+    }
+
+    .paper-1 {
+      top: 120px;
+      left: -10px;
+      transform: rotate(-7deg);
+    }
+
+    .paper-2 {
+      top: 220px;
+      right: -6px;
+      background: var(--mint);
+      transform: rotate(4deg);
+    }
+
+    .paper-3 {
+      bottom: 40px;
+      left: 10%;
+      background: #ffe9e9;
+      transform: rotate(-5deg);
+    }
+
+    /* ───── 상품 그리드 ───── */
+
+    .shop-section {
+      margin-top: 40px;
+      position: relative;
+    }
+
+    .section-label {
+      display: inline-block;
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 14px;
+      background: #111;
+      color: #fff;
+      padding: 3px 10px;
+      border-radius: 999px;
+      transform: rotate(-4deg);
+      margin-bottom: 18px;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 26px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .product-card {
+      position: relative;
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px 12px 16px;
+      box-shadow: 4px 4px 0 #11111133;
+      border: 1px solid #11111155;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      transform: rotate(-1.5deg);
+    }
+
+    .product-card:nth-child(even) {
+      transform: rotate(2.2deg);
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px) rotate(0deg);
+      box-shadow: 6px 6px 0 #11111144;
+    }
+
+    .product-image {
+      background: #f8f8f8;
+      border-radius: 8px;
+      height: 150px;
+      margin-bottom: 10px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .product-image::before {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border: 1.5px dashed #cccccc;
+      border-radius: 8px;
+      transform: rotate(-3deg);
+    }
+
+    .product-emoji {
+      font-size: 40px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .product-title {
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+
+    .product-sub {
+      font-size: 11px;
+      opacity: 0.7;
+      margin-bottom: 10px;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .pill {
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid #11111166;
+      background: #fffef0;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pill.env {
+      background: #f0fffb;
+    }
+
+    .pill.cap {
+      background: #ffeefe;
+    }
+
+    .pill strong {
+      font-size: 11px;
+    }
+
+    .see-real {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-family: "Gaegu", system-ui, sans-serif;
+      background: #111;
+      color: #fff;
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-top: 6px;
+    }
+
+    .see-real span {
+      font-size: 13px;
+    }
+
+    /* ───── 모달(진짜 비용 오버레이) ───── */
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal {
+      width: min(520px, 90vw);
+      max-height: 80vh;
+      overflow-y: auto;
+      background: #fffdf8;
+      border-radius: 16px;
+      border: 2px solid #111;
+      box-shadow: 8px 8px 0 #111;
+      padding: 18px 18px 20px;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      border: none;
+      background: #111;
+      color: #fff;
+      border-radius: 999px;
+      padding: 2px 9px;
+      font-size: 12px;
+      font-family: "Gaegu", system-ui, sans-serif;
+      cursor: pointer;
+    }
+
+    .modal-title {
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
+
+    .modal-subtitle {
+      font-size: 12px;
+      opacity: 0.7;
+      margin-bottom: 12px;
+    }
+
+    .score-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .score-chip {
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1.5px solid #111111aa;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .score-chip.bad {
+      background: #ffe9e9;
+      border-color: var(--red-soft);
+      color: #7c1111;
+    }
+
+    .score-number {
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .progress-bar {
+      height: 7px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #f3f3f3;
+      margin-top: 3px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ffd36f, var(--red-soft));
+      width: 0;
+    }
+
+    .supply-map {
+      margin: 16px 0 10px;
+      padding: 10px 12px;
+      background: #ffffff;
+      border-radius: 10px;
+      border: 1px dashed #11111155;
+      position: relative;
+    }
+
+    .supply-map::before {
+      content: "supply map";
+      position: absolute;
+      top: -11px;
+      left: 10px;
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 11px;
+      background: #fffdf8;
+      padding: 0 6px;
+    }
+
+    .map-line {
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .cute-note {
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 12px;
+      background: var(--yellow);
+      padding: 6px 10px;
+      border-radius: 8px;
+      margin-top: 8px;
+      transform: rotate(-1.5deg);
+      display: inline-block;
+    }
+
+    .evidence-list {
+      margin: 12px 0 8px;
+      padding-left: 18px;
+      font-size: 12px;
+    }
+
+    .evidence-list li {
+      margin-bottom: 4px;
+    }
+
+    .cta-row {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cta-main {
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 13px;
+      padding: 6px 14px;
+      background: #111;
+      color: #fff;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cta-second {
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px dashed #111;
+      background: #fff;
+    }
+
+    /* 푸터/엔딩 */
+
+    footer {
+      margin-top: 56px;
+      text-align: center;
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 12px;
+      color: #777;
+    }
+
+    .ending-note {
+      display: inline-block;
+      background: var(--mint);
+      padding: 6px 16px;
+      border-radius: 20px;
+      transform: rotate(-2deg);
+      margin-bottom: 6px;
+    }
+
+    .ending-choice {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .choice-pill {
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 12px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid #111;
+      background: #fff;
+      cursor: default;
+    }
+
+    .choice-pill.good {
+      background: var(--yellow);
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 16px;
+      }
+      .paper-1,
+      .paper-2 {
+        display: none;
+      }
+    }
+  </style>
 </head>
 <body>
-
-    <div id="instruction">화면을 클릭하면 시작합니다.</div>
-    <button id="target-btn" style="display:none;">버튼</button>
-    
-    <div id="result-area">
-        <h2>실험 결과</h2>
-        <div class="data-row">일치 조건 (Match) 평균 시간: <b id="match-time"></b> ms</div>
-        <div class="data-row">불일치 조건 (Mismatch) 평균 시간: <b id="mismatch-time"></b> ms</div>
-        <p id="analysis"></p>
-        <button onclick="location.reload()" style="padding:10px; margin-top:20px;">다시 하기</button>
+  <div class="fake-browser-bar">
+    <div class="browser-dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
     </div>
+    <div class="fake-url">realshop.fake / welcome</div>
+  </div>
 
-    <script>
-        const instruction = document.getElementById('instruction');
-        const btn = document.getElementById('target-btn');
-        const resultArea = document.getElementById('result-area');
-        
-        // 실험 데이터 설정
-        // Type 1: Match (뾰족=삭제 / 둥글=저장)
-        // Type 2: Mismatch (둥글=삭제 / 뾰족=저장)
-        const trials = [
-            { type: 'match', form: 'spiky-shape', text: '삭제하기' },
-            { type: 'match', form: 'round-shape', text: '보호하기' },
-            { type: 'mismatch', form: 'round-shape', text: '삭제하기' }, // 인지 부조화 유발
-            { type: 'mismatch', form: 'spiky-shape', text: '보호하기' }, // 인지 부조화 유발
-            { type: 'match', form: 'spiky-shape', text: '공격하기' },
-            { type: 'mismatch', form: 'round-shape', text: '공격하기' }
-        ];
+  <main>
+    <div class="page">
+      <header>
+        <div>
+          <div class="logo">
+            <span>REAL</span> <span>SHOP</span>
+          </div>
+          <div class="tagline">귀여운 쇼핑몰에 살짝 덧씌워진 &nbsp;“진짜 가격”</div>
+        </div>
 
-        let currentTrial = 0;
-        let startTime = 0;
-        let results = { match: [], mismatch: [] };
-        let isStarted = false;
+        <nav>
+          <div class="menu-stack">
+            <div class="menu-item">SHOP <span>상품 보기</span></div>
+            <div class="menu-item">ABOUT · FAQ <span>이게 뭔가요?</span></div>
+            <div class="menu-item">CART (0) <span>장바구니</span></div>
+            <div class="menu-item">LOGIN <span>손님맞이</span></div>
+          </div>
+        </nav>
+      </header>
 
-        // 셔플 함수 (순서 섞기)
-        function shuffle(array) {
-            return array.sort(() => Math.random() - 0.5);
-        }
+      <h1 class="welcome-title">
+        <span>We</span><span>lc</span><span>O</span><span>me!</span>
+      </h1>
+      <p class="welcome-sub">
+        이곳은 귀여운 쇼핑몰처럼 보이지만,  
+        사실은 상품 뒤에 숨겨진 &ldquo;진짜 비용&rdquo;을 살짝 보여주는 실험 공간이에요.
+      </p>
 
-        document.body.onclick = function(e) {
-            if (!isStarted && e.target.tagName !== 'BUTTON') {
-                isStarted = true;
-                startExperiment();
-            }
-        };
+      <div class="paper-scrap paper-1">
+        오늘도 수많은 물건들이
+        <br>너무 빠르게 팔리고 있어요.
+      </div>
+      <div class="paper-scrap paper-2">
+        가격표 뒤에 있는 것들을
+        <br>한 번만 같이 들춰볼까요?
+      </div>
 
-        function startExperiment() {
-            shuffle(trials); // 순서 랜덤
-            instruction.innerText = "버튼이 나타나면 즉시 클릭하세요!";
-            nextTrial();
-        }
+      <!-- SHOP SECTION -->
+      <section class="shop-section">
+        <div class="section-label">★ 오늘의 상품들</div>
 
-        function nextTrial() {
-            if (currentTrial >= trials.length) {
-                showResult();
-                return;
-            }
+        <div class="product-grid">
+          <!-- 티셔츠 -->
+          <article
+            class="product-card"
+            data-name="Z*RA Basic Tee"
+            data-sub="귀여운 기본 흰 티셔츠…처럼 보이는 패스트패션"
+            data-emoji="👕"
+            data-labor="91"
+            data-env="83"
+            data-extra="412"
+            data-supply="우즈베키스탄(면) → 방글라데시(봉제) → 중국(가공) → 미국(유통)"
+            data-note="바느질 요정들이 하루 12–14시간 동안 쉴 틈 없이 일했어요."
+            data-evidence='["티셔츠 1장을 만드는 데 물 약 2,700L가 사용돼요.","패스트패션 공장 노동자들의 임금은 하루 3달러 안팎인 경우가 많아요.","남는 재고와 폐의류의 상당수가 아프리카와 남반구로 보내져요."]'
+          >
+            <div class="product-image">
+              <div class="product-emoji">👕</div>
+            </div>
+            <div class="product-title">Z*RA Basic Tee</div>
+            <div class="product-sub">살짝 비뚤어진 흰 티셔츠 한 장</div>
+            <div class="tag-row">
+              <div class="pill"><strong>노동</strong> 91%</div>
+              <div class="pill env"><strong>환경</strong> 83%</div>
+              <div class="pill cap"><strong>CEO</strong> 412×</div>
+            </div>
+            <div class="see-real">
+              <span>☻</span> 진짜 가격 보기
+            </div>
+          </article>
 
-            btn.style.display = 'none';
-            
-            // 랜덤한 대기 시간 (0.5~1.5초) 후 버튼 등장
-            setTimeout(() => {
-                const trial = trials[currentTrial];
-                
-                // 스타일 초기화 및 적용
-                btn.className = ''; 
-                btn.classList.add(trial.form);
-                btn.innerText = trial.text;
-                
-                btn.style.display = 'block';
-                startTime = Date.now(); // 시간 측정 시작
-            }, 500 + Math.random() * 1000);
-        }
+          <!-- 스마트폰 -->
+          <article
+            class="product-card"
+            data-name="Appall AirSound Pro"
+            data-sub="손에 착 감기는 예쁜 무선 이어폰"
+            data-emoji="🎧"
+            data-labor="76"
+            data-env="68"
+            data-extra="1520"
+            data-supply="DR콩고(코발트) → 중국(부품·조립) → 미국(브랜드)"
+            data-note="코발트 요정들이 거의 쉬지 못하고 광산을 오가요."
+            data-evidence='["코발트 채굴에는 아동 노동과 위험한 작업 환경이 종종 동원돼요.","전자제품은 생산·폐기 과정에서 많은 탄소와 독성 물질을 남겨요.","거대 IT 기업의 CEO는 종종 평균 노동자의 수백~수천 배 연봉을 받아요."]'
+          >
+            <div class="product-image">
+              <div class="product-emoji">🎧</div>
+            </div>
+            <div class="product-title">Appall AirSound Pro</div>
+            <div class="product-sub">귀에 쏙 들어가는 편리함</div>
+            <div class="tag-row">
+              <div class="pill"><strong>노동</strong> 76%</div>
+              <div class="pill env"><strong>환경</strong> 68%</div>
+              <div class="pill cap"><strong>CEO</strong> 1520×</div>
+            </div>
+            <div class="see-real">
+              <span>☻</span> 진짜 가격 보기
+            </div>
+          </article>
 
-        btn.onclick = function(e) {
-            e.stopPropagation(); // 바디 클릭 방지
-            const endTime = Date.now();
-            const reactionTime = endTime - startTime;
-            
-            // 데이터 저장
-            const trialType = trials[currentTrial].type;
-            results[trialType].push(reactionTime);
+          <!-- 커피 -->
+          <article
+            class="product-card"
+            data-name="Global Hug Coffee"
+            data-sub="전 세계 어디서나 볼 수 있는 테이크아웃 컵"
+            data-emoji="☕"
+            data-labor="62"
+            data-env="57"
+            data-extra="200"
+            data-supply="브라질(원두) → 베트남(가공) → 유럽(로스팅) → 전 세계(판매)"
+            data-note="커피콩 친구들이 아주 멀고 긴 여행을 했어요."
+            data-evidence='["커피 농장은 가격 변동에 크게 흔들려 농부들이 불안정한 소득에 놓이기 쉬워요.","일회용 컵과 뚜껑, 빨대는 짧은 시간 쓰이고 바로 쓰레기가 돼요.","브랜드 가치가 높을수록 생산자 몫은 상대적으로 작아지기도 해요."]'
+          >
+            <div class="product-image">
+              <div class="product-emoji">☕</div>
+            </div>
+            <div class="product-title">Global Hug Coffee</div>
+            <div class="product-sub">따뜻한 한 잔의 안부 인사</div>
+            <div class="tag-row">
+              <div class="pill"><strong>노동</strong> 62%</div>
+              <div class="pill env"><strong>환경</strong> 57%</div>
+              <div class="pill cap"><strong>CEO</strong> 200×</div>
+            </div>
+            <div class="see-real">
+              <span>☻</span> 진짜 가격 보기
+            </div>
+          </article>
 
-            currentTrial++;
-            nextTrial();
-        };
+          <!-- 즉시배송 -->
+          <article
+            class="product-card"
+            data-name="Amazun Instant Delivery"
+            data-sub="오늘 밤 11시 전에 주문하면 내일 도착!"
+            data-emoji="📦"
+            data-labor="89"
+            data-env="92"
+            data-extra="98"
+            data-supply="각국 물류센터 → 항공·트럭 이동 → 우리 집 문 앞"
+            data-note="트럭 요정들이 밤늦게까지 쉬지 않고 달려요."
+            data-evidence='["당일·익일 배송은 창고와 차량이 더 자주 움직이게 만들어 탄소 배출이 늘어나요.","택배 노동자들은 과로와 안전사고 위험에 자주 노출돼요.","거대 플랫폼이 물류를 독점할수록 지역 상권은 설 자리를 잃게 돼요."]'
+          >
+            <div class="product-image">
+              <div class="product-emoji">📦</div>
+            </div>
+            <div class="product-title">Amazun Instant Delivery</div>
+            <div class="product-sub">손가락 한 번으로 소환하는 상자 요정</div>
+            <div class="tag-row">
+              <div class="pill"><strong>노동</strong> 89%</div>
+              <div class="pill env"><strong>환경</strong> 92%</div>
+              <div class="pill cap"><strong>집중</strong> 98%</div>
+            </div>
+            <div class="see-real">
+              <span>☻</span> 진짜 가격 보기
+            </div>
+          </article>
+        </div>
+      </section>
 
-        function showResult() {
-            btn.style.display = 'none';
-            instruction.style.display = 'none';
-            resultArea.style.display = 'block';
+      <div class="paper-scrap paper-3">
+        귀여운 것들을 사랑하면서도<br>
+        덜 아프게 사랑할 방법을 같이 찾아봐요.
+      </div>
 
-            const calcAvg = (arr) => arr.length ? Math.round(arr.reduce((a, b) => a + b) / arr.length) : 0;
-            
-            const matchAvg = calcAvg(results.match);
-            const mismatchAvg = calcAvg(results.mismatch);
+      <footer>
+        <div class="ending-note">
+          이제 당신은 &ldquo;보이는 가격&rdquo;과 &ldquo;보이지 않던 가격&rdquo;을 모두 알고 있어요.
+        </div>
+        <div class="ending-choice">
+          <div class="choice-pill">그냥 살래요</div>
+          <div class="choice-pill good">조금 다르게 살래요</div>
+        </div>
+      </footer>
+    </div>
+  </main>
 
-            document.getElementById('match-time').innerText = matchAvg;
-            document.getElementById('mismatch-time').innerText = mismatchAvg;
+  <!-- 모달 -->
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <button class="modal-close" id="modal-close">닫기 ✕</button>
+      <div class="modal-title" id="modal-title">상품 이름</div>
+      <div class="modal-subtitle" id="modal-subtitle">상품 설명</div>
 
-            // 결과 해석
-            const diff = mismatchAvg - matchAvg;
-            const analysisText = document.getElementById('analysis');
-            
-            if (diff > 0) {
-                analysisText.innerHTML = `형태와 기능이 일치하지 않을 때 <b>${diff}ms</b> 더 오래 걸렸습니다.<br>가설대로 형태가 주는 의미가 판단을 방해했음을 시사합니다.`;
-                analysisText.style.color = "blue";
-            } else {
-                analysisText.innerHTML = `유의미한 차이가 발견되지 않았거나, 텍스트 인지가 더 빨랐습니다.`;
-                analysisText.style.color = "red";
-            }
-        }
-    </script>
+      <div class="score-row">
+        <div class="score-chip bad">
+          노동 착취 <span class="score-number" id="score-labor">0%</span>
+        </div>
+        <div class="score-chip bad">
+          환경 파괴 <span class="score-number" id="score-env">0%</span>
+        </div>
+        <div class="score-chip">
+          CEO 보상비율 <span class="score-number" id="score-extra">0×</span>
+        </div>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+
+      <div class="supply-map">
+        <div class="map-line" id="map-line">
+          공급망 정보가 여기에 들어갑니다.
+        </div>
+        <div class="cute-note" id="cute-note">
+          귀여운 한 줄 설명
+        </div>
+      </div>
+
+      <ul class="evidence-list" id="evidence-list">
+        <!-- JS로 채움 -->
+      </ul>
+
+      <div class="cta-row">
+        <div class="cta-main">
+          🌱 다음엔 조금 다르게 사볼까요?
+        </div>
+        <div class="cta-second">
+          가격표 뒤의 세계를 기억해 두기 ✶
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 간단한 모달 로직
+    const cards = document.querySelectorAll(".product-card");
+    const backdrop = document.getElementById("modal-backdrop");
+    const closeBtn = document.getElementById("modal-close");
+
+    const titleEl = document.getElementById("modal-title");
+    const subEl = document.getElementById("modal-subtitle");
+    const laborEl = document.getElementById("score-labor");
+    const envEl = document.getElementById("score-env");
+    const extraEl = document.getElementById("score-extra");
+    const mapLineEl = document.getElementById("map-line");
+    const noteEl = document.getElementById("cute-note");
+    const evidenceListEl = document.getElementById("evidence-list");
+    const progressFill = document.getElementById("progress-fill");
+
+    function openModal(card) {
+      const name = card.dataset.name;
+      const sub = card.dataset.sub;
+      const labor = Number(card.dataset.labor || 0);
+      const env = Number(card.dataset.env || 0);
+      const extra = card.dataset.extra || "-";
+      const supply = card.dataset.supply || "";
+      const note = card.dataset.note || "";
+      let evidence = [];
+      try {
+        evidence = JSON.parse(card.dataset.evidence || "[]");
+      } catch (e) {
+        evidence = [];
+      }
+
+      titleEl.textContent = name;
+      subEl.textContent = sub;
+      laborEl.textContent = labor + "%";
+      envEl.textContent = env + "%";
+      extraEl.textContent = extra + "×";
+      mapLineEl.textContent = supply;
+      noteEl.textContent = note;
+
+      // evidence 리스트 채우기
+      evidenceListEl.innerHTML = "";
+      evidence.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        evidenceListEl.appendChild(li);
+      });
+
+      // progress bar (노동+환경 평균)
+      const avg = Math.round((labor + env) / 2);
+      progressFill.style.width = avg + "%";
+
+      backdrop.classList.add("active");
+    }
+
+    cards.forEach((card) => {
+      card.addEventListener("click", () => openModal(card));
+    });
+
+    closeBtn.addEventListener("click", () => {
+      backdrop.classList.remove("active");
+    });
+
+    backdrop.addEventListener("click", (e) => {
+      if (e.target === backdrop) {
+        backdrop.classList.remove("active");
+      }
+    });
+
+    // ESC 키 닫기
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        backdrop.classList.remove("active");
+      }
+    });
+  </script>
 </body>
 </html>
+
