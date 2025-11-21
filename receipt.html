@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Receipt – REAL shop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <style>
+    @font-face {
+      font-family: 'Gotham';
+      src: url('Gotham-Regular.otf') format('opentype');
+      font-weight: 400;
+    }
+    @font-face {
+      font-family: 'Gotham';
+      src: url('Gotham-Medium.otf') format('opentype');
+      font-weight: 500;
+    }
+    @font-face {
+      font-family: 'Gotham';
+      src: url('Gotham-Bold.otf') format('opentype');
+      font-weight: 700;
+    }
+    @font-face {
+      font-family: 'Gotham';
+      src: url('Gotham-Ultra.otf') format('opentype');
+      font-weight: 900;
+    }
+
+    * { box-sizing:border-box; }
+
+    body {
+      background:#f7f4ec;
+      min-height:100vh;
+      margin:0;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      padding-top:40px;
+      overflow-y:auto;
+      font-family:'Gotham', system-ui, sans-serif;
+      font-weight:500; /* Gotham-Medium 느낌 */
+    }
+
+    #print-msg {
+      position:absolute;
+      top:12px;
+      left:50%;
+      transform:translateX(-50%);
+      font-size:13px;
+      opacity:0.8;
+      animation: fadeout 1.4s ease-out forwards;
+    }
+
+    @keyframes fadeout {
+      0% { opacity:0; }
+      40% { opacity:1; }
+      100% { opacity:0; }
+    }
+
+    .receipt {
+      background:#fffef9;
+      padding:18px 16px 20px;
+      border:1px solid #000;
+      width:min(360px, 90vw);
+      position:relative;
+      text-align:center;  /* 중앙 정렬 */
+      line-height:1.4;
+
+      transform: translateY(-120%);
+      opacity:0;
+      animation: drop 1.8s ease-out forwards,
+                 vibrate 0.15s ease-in-out 1.8s 4;
+    }
+
+    /* 위/아래 톱니 절취선 */
+    .receipt::before,
+    .receipt::after {
+      content:"";
+      position:absolute;
+      left:0; right:0;
+      height:6px;
+      background-image: repeating-linear-gradient(
+        to right,
+        #000 0, #000 4px,
+        transparent 4px, transparent 8px
+      );
+    }
+    .receipt::before { top:0; }
+    .receipt::after  { bottom:0; }
+
+    @keyframes drop {
+      0%   { transform: translateY(-120%); opacity:0; }
+      50%  { transform: translateY(-20%); opacity:1; }
+      70%  { transform: translateY(-8%); }
+      100% { transform: translateY(0); }
+    }
+
+    @keyframes vibrate {
+      0% { transform: translateY(0); }
+      25% { transform: translateY(2px); }
+      50% { transform: translateY(-1px); }
+      75% { transform: translateY(1px); }
+      100% { transform: translateY(0); }
+    }
+
+    .title {
+      font-weight:700;
+      letter-spacing:0.18em;
+      margin-bottom:4px;
+      margin-top:4px;
+      font-size:13px;
+    }
+
+    .sub {
+      font-size:11px;
+      opacity:0.7;
+      margin-bottom:8px;
+    }
+
+    .line {
+      border-bottom:1px dashed #000;
+      margin:6px 0 10px;
+    }
+
+    .section-title {
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      opacity:0.8;
+      margin-bottom:4px;
+    }
+
+    .item-line {
+      font-size:12px;
+      margin:3px 0;
+    }
+
+    .avg-line {
+      font-size:12px;
+      margin:2px 0;
+    }
+
+    .footer {
+      font-size:11px;
+      opacity:0.8;
+      margin-top:8px;
+    }
+
+    .btn {
+      margin-top:10px;
+      padding:6px 14px;
+      border:1px solid #000;
+      background:#fff;
+      cursor:pointer;
+      font-family:'Gotham';
+      font-size:11px;
+      border-radius:999px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="print-msg">printing...</div>
+  <div class="receipt" id="receipt"></div>
+
+  <!-- 아주 짧은 dummy 사운드 (원하면 나중에 실제 프린터 사운드로 교체) -->
+  <audio id="print-sound">
+    <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=" type="audio/wav">
+  </audio>
+
+  <script>
+    let bag = JSON.parse(localStorage.getItem("impactBag") || "[]");
+    const receipt = document.getElementById("receipt");
+    const sound = document.getElementById("print-sound");
+
+    function buildReceipt(){
+      if (bag.length === 0) {
+        return "No items.\n\n<button class=\"btn\" onclick=\"back()\">Back to shop</button>";
+      }
+
+      let totalL=0, totalE=0, totalC=0;
+      let lines = [];
+
+      lines.push('<div class="title">IMPACT RECEIPT</div>');
+      lines.push('<div class="sub">REAL SHOP</div>');
+      lines.push('<div class="line"></div>');
+
+      const now = new Date();
+      lines.push(`<div style="font-size:11px; margin-bottom:6px;">${now.toLocaleString()}</div>`);
+
+      lines.push('<div class="section-title">items purchased</div>');
+
+      bag.forEach(i => {
+        totalL += Number(i.labor);
+        totalE += Number(i.env);
+        totalC += Number(i.extra);
+        lines.push(
+          `<div class="item-line">Labor ${i.labor}% / Environment ${i.env}% / CEO ${i.extra}×</div>`
+        );
+      });
+
+      const n = bag.length;
+      const avgL = Math.round(totalL/n);
+      const avgE = Math.round(totalE/n);
+      const avgC = Math.round(totalC/n);
+
+      lines.push('<div class="line"></div>');
+      lines.push('<div class="section-title">averages</div>');
+      lines.push(`<div class="avg-line">Labor        ${avgL}%</div>`);
+      lines.push(`<div class="avg-line">Environment  ${avgE}%</div>`);
+      lines.push(`<div class="avg-line">CEO ratio    ${avgC}×</div>`);
+
+      lines.push('<div class="footer">This receipt shows impact instead of price.</div>');
+      lines.push('<button class="btn" onclick="back()">Back to shop</button>');
+
+      return lines.join('');
+    }
+
+    // play sound & inject content with slight delay (프린트 느낌)
+    setTimeout(() => {
+      try {
+        sound.volume = 0.4;
+        sound.play();
+      } catch(e) {}
+      receipt.innerHTML = buildReceipt();
+    }, 900);
+
+    function back(){
+      localStorage.removeItem("impactBag");
+      window.location.href = "index.html";
+    }
+  </script>
+
+</body>
+</html>
