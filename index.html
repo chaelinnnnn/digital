@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>REAL shop – welcome</title>
+  <title>REAL shop – impact checkout</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,17 +11,20 @@
 
   <style>
     * { box-sizing: border-box; }
+
     :root {
       --bg: #ffffff;
       --mint: #c8fff2;
       --yellow: #fff46a;
       --red-soft: #ff6363;
-      --gray: #111;
+      --gray: #111111;
     }
+
     body {
-      background: var(--bg);
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI";
+      background: var(--bg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--gray);
       overflow: hidden;
     }
 
@@ -32,48 +35,115 @@
       position: relative;
     }
 
-    .title-wrap {
+    /* title + cart button */
+
+    .header {
+      position: relative;
       text-align: center;
-      margin-top: 40px;
+      padding-top: 26px;
+      z-index: 5;
     }
+
     .title {
-      font-family: "Gaegu", sans-serif;
-      font-size: 40px;
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 38px;
     }
+
     .subtitle {
-      font-family: "Gaegu", sans-serif;
+      margin-top: 6px;
+      font-family: "Gaegu", system-ui, sans-serif;
       font-size: 14px;
       background: var(--mint);
       padding: 4px 12px;
       border-radius: 999px;
       display: inline-block;
       transform: rotate(-1deg);
-      margin-top: 6px;
     }
+
+    .cart-button {
+      position: absolute;
+      right: 16px;
+      top: 18px;
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #111;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      box-shadow: 2px 2px 0 #00000055;
+    }
+
+    .bottom-note {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: "Gaegu", system-ui, sans-serif;
+      background: var(--mint);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      z-index: 4;
+      box-shadow: 2px 2px 0 #11111133;
+    }
+
+    /* floating items */
 
     .item {
       position: absolute;
       cursor: pointer;
-      transition: transform 0.2s ease;
+      z-index: 1;
     }
-    .item:hover { transform: translateY(-6px) rotate(1deg); }
+
     .item img {
       max-width: 170px;
+      height: auto;
       filter: drop-shadow(0 6px 12px rgba(0,0,0,0.18));
+      display: block;
     }
 
-    /* Layout positions */
-    .phone { left: 4%; top: 40%; transform: rotate(-10deg); }
-    .tshirt { left: 32%; top: 36%; transform: rotate(6deg); }
-    .airpods { left: 55%; top: 30%; transform: rotate(-5deg); }
-    .candle { right: 2%; top: 20%; transform: rotate(9deg); }
-    .water { right: 8%; bottom: 10%; transform: rotate(-6deg); }
-    .coffee { left: 14%; bottom: 0%; transform: rotate(4deg); }
-    .lip { left: 45%; bottom: 8%; transform: rotate(-7deg); }
+    .item-inner {
+      animation: float 8s ease-in-out infinite alternate;
+    }
 
-    @media(max-width:900px){
+    .item.phone .item-inner { animation-duration: 9s; animation-delay: -1s; }
+    .item.tshirt .item-inner { animation-duration: 7.5s; animation-delay: -2s; }
+    .item.airpods .item-inner { animation-duration: 8.5s; animation-delay: -1.5s; }
+    .item.candle .item-inner { animation-duration: 10s; animation-delay: -0.5s; }
+    .item.water .item-inner { animation-duration: 9s; animation-delay: -2.5s; }
+    .item.coffee .item-inner { animation-duration: 8s; animation-delay: -3s; }
+    .item.lip .item-inner { animation-duration: 7.2s; animation-delay: -1.8s; }
+
+    @keyframes float {
+      0%   { transform: translate(0, 0); }
+      50%  { transform: translate(10px, -12px); }
+      100% { transform: translate(-8px, 6px); }
+    }
+
+    /* base positions + rotation */
+
+    .phone  { left: 4%;  top: 40%; transform: rotate(-10deg); }
+    .tshirt { left: 32%; top: 36%; transform: rotate( 6deg); }
+    .airpods{ left: 55%; top: 30%; transform: rotate(-5deg); }
+    .candle { right: 2%; top: 20%; transform: rotate( 9deg); }
+    .water  { right: 8%; bottom: 12%; transform: rotate(-6deg); }
+    .coffee { left: 14%; bottom: 0%; transform: rotate( 4deg); }
+    .lip    { left: 45%; bottom: 8%; transform: rotate(-7deg); }
+
+    @media (max-width: 900px) {
       .item img { max-width: 130px; }
+      .phone  { left: 4%;  top: 48%; }
+      .tshirt { left: 28%; top: 36%; }
+      .airpods{ left: 55%; top: 44%; }
+      .candle { right: 0%; top: 14%; }
+      .water  { right: 4%; bottom: 8%; }
+      .coffee { left: 8%; bottom: -4%; }
+      .lip    { left: 40%; bottom: 10%; }
     }
+
+    /* hover info sticker */
 
     .sticker {
       position: absolute;
@@ -82,29 +152,20 @@
       transform: translateX(-50%) rotate(-4deg);
       opacity: 0;
       transition: opacity 0.15s ease;
-      font-family: "Gaegu", sans-serif;
+      font-family: "Gaegu", system-ui, sans-serif;
       font-size: 11px;
       background: var(--yellow);
       padding: 3px 8px;
       border-radius: 8px;
-      border: 1px solid #1113;
+      border: 1px solid #11111140;
       white-space: nowrap;
+      box-shadow: 2px 2px 0 #11111133;
     }
+
     .item:hover .sticker { opacity: 1; }
 
-    .bottom-note {
-      position: fixed;
-      bottom: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-family: "Gaegu", sans-serif;
-      background: var(--mint);
-      padding: 6px 14px;
-      border-radius: 999px;
-      font-size: 12px;
-    }
-
     /* modal */
+
     .backdrop {
       position: fixed;
       inset: 0;
@@ -112,54 +173,67 @@
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 100;
+      z-index: 20;
     }
     .backdrop.active { display: flex; }
 
     .modal {
       background: #fffdf8;
       width: min(480px, 92vw);
-      border: 2px solid #111;
-      border-radius: 16px;
-      box-shadow: 8px 8px 0 #111;
-      padding: 20px;
-      position: relative;
       max-height: 80vh;
+      border-radius: 16px;
+      border: 2px solid #111;
+      box-shadow: 8px 8px 0 #111;
+      padding: 18px 20px 20px;
+      position: relative;
       overflow-y: auto;
     }
-    .modal-close {
-      position: absolute;
-      right: 16px;
-      top: 14px;
-      background: #111;
-      color: #fff;
-      padding: 3px 10px;
-      border-radius: 999px;
-      font-family: "Gaegu";
-      font-size: 12px;
-      cursor: pointer;
-    }
+
     .modal-title {
-      font-family: "Gaegu";
+      font-family: "Gaegu", system-ui, sans-serif;
       font-size: 22px;
       margin-bottom: 4px;
     }
+
     .modal-sub {
       font-size: 12px;
       opacity: 0.7;
       margin-bottom: 10px;
     }
 
-    .chip {
-      padding: 4px 10px;
+    .modal-close {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      border: none;
+      background: #111;
+      color: #fff;
       border-radius: 999px;
+      font-family: "Gaegu";
+      font-size: 12px;
+      padding: 3px 10px;
+      cursor: pointer;
+    }
+
+    .chips {
+      margin-bottom: 12px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1.5px solid #11111144;
       background: #fff;
-      border: 1.5px solid #1113;
       font-family: "Gaegu";
       font-size: 12px;
       margin-right: 6px;
+      margin-bottom: 4px;
     }
-    .bad {
+
+    .chip.bad {
       background: #ffeaea;
       border-color: var(--red-soft);
       color: #7c1111;
@@ -167,170 +241,284 @@
 
     .progress-bar {
       height: 7px;
-      background: #eee;
       border-radius: 999px;
-      margin: 10px 0;
-      overflow:hidden;
+      background: #eee;
+      overflow: hidden;
+      margin-bottom: 12px;
     }
+
     .progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, #ffd36f, var(--red-soft));
       width: 0;
+      background: linear-gradient(90deg, #ffd36f, var(--red-soft));
     }
 
     .map-box {
-      border: 1px dashed #1115;
-      padding: 10px;
       border-radius: 10px;
-      background: #fff;
+      border: 1px dashed #11111166;
+      padding: 10px 12px;
+      background: #ffffff;
     }
+
     .map-title {
       font-family: "Gaegu";
       font-size: 11px;
       margin-bottom: 4px;
     }
+
     .map-line {
       font-family: "Gaegu";
       font-size: 13px;
     }
 
-    .evidence { font-size: 12px; margin-top: 12px; padding-left: 14px; }
-    .evidence li { margin-bottom: 4px; }
+    .evidence {
+      font-size: 12px;
+      margin-top: 10px;
+      padding-left: 16px;
+    }
 
-    .cta-main {
+    .evidence li {
+      margin-bottom: 4px;
+    }
+
+    .modal-actions {
       margin-top: 14px;
-      padding: 6px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-add {
+      border: none;
       background: #111;
       color: #fff;
-      border-radius: 999px;
       font-family: "Gaegu";
       font-size: 13px;
-      display:inline-block;
+      padding: 6px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .hint {
+      font-family: "Gaegu";
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    /* receipt screen */
+
+    .receipt-screen {
+      position: fixed;
+      inset: 0;
+      background: #f7f4ec;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 30;
+    }
+
+    .receipt-screen.active {
+      display: flex;
+    }
+
+    .receipt {
+      background: #fffef9;
+      border: 1px solid #000;
+      box-shadow: 8px 8px 0 #111;
+      padding: 18px 16px 18px;
+      width: min(340px, 90vw);
+      font-family: "SF Mono", "Menlo", "Consolas", monospace;
+      font-size: 12px;
+      position: relative;
+    }
+
+    .receipt::before,
+    .receipt::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background-image: repeating-linear-gradient(
+        to right,
+        #000 0,
+        #000 4px,
+        transparent 4px,
+        transparent 8px
+      );
+    }
+    .receipt::before { top: 0; }
+    .receipt::after  { bottom: 0; }
+
+    .receipt-header {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .receipt-header strong {
+      letter-spacing: 0.16em;
+    }
+
+    .receipt-line {
+      border-bottom: 1px dashed #000;
+      margin: 6px 0;
+    }
+
+    .receipt-section-title {
+      margin-top: 8px;
+      margin-bottom: 2px;
+    }
+
+    .receipt-footer {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 11px;
+    }
+
+    .receipt-btn {
+      margin-top: 8px;
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #000;
+      background: #fff;
+      cursor: pointer;
     }
   </style>
 </head>
 
 <body>
   <main>
-
-    <div class="title-wrap">
+    <div class="header">
       <div class="title">welcome to REAL shop!</div>
-      <div class="subtitle">Click items to view associated impact data</div>
+      <div class="subtitle">Click items · add to cart · checkout for an impact receipt</div>
+      <button class="cart-button" id="cart-button">Cart (0)</button>
     </div>
+
+    <!-- floating items -->
 
     <!-- PHONE -->
     <div class="item phone"
       data-name="Smartphone"
-      data-sub="General electronics device"
       data-labor="78"
       data-env="82"
       data-extra="1500"
       data-supply="Mining → Components → Assembly → Global distribution"
-      data-evidence='["Production requires rare minerals.", "Manufacturing produces electronic waste.", "Energy-intensive global logistics."]'
+      data-evidence='["Production requires rare minerals.","Manufacturing produces electronic waste.","Energy-intensive global logistics."]'
     >
-      <img src="MGFH4.png" alt="phone">
-      <div class="sticker">Labor 78% · Environment 82%</div>
+      <div class="item-inner">
+        <img src="MGFH4.png" alt="phone" />
+        <div class="sticker">Labor 78% · Env 82%</div>
+      </div>
     </div>
 
-    <!-- TSHIRT -->
+    <!-- T-SHIRT -->
     <div class="item tshirt"
       data-name="Basic T-shirt"
-      data-sub="Standard cotton apparel"
       data-labor="91"
       data-env="83"
       data-extra="412"
       data-supply="Cotton farming → Spinning → Sewing → Distribution"
-      data-evidence='["High water use in cotton.", "Low-wage garment labor.", "High volume of textile waste."]'
+      data-evidence='["High water use in cotton.","Low-wage garment labor.","High volume of textile waste."]'
     >
-      <img src="티셔츠.png" alt="t-shirt">
-      <div class="sticker">Labor 91% · Environment 83%</div>
+      <div class="item-inner">
+        <img src="티셔츠.png" alt="t-shirt" />
+        <div class="sticker">Labor 91% · Env 83%</div>
+      </div>
     </div>
 
-    <!-- AIRPODS -->
+    <!-- EARBUDS -->
     <div class="item airpods"
       data-name="Wireless Earbuds"
-      data-sub="Electronic audio accessory"
       data-labor="76"
       data-env="68"
       data-extra="1520"
       data-supply="Mineral extraction → Components → Assembly"
-      data-evidence='["Cobalt extraction has labor concerns.", "Battery waste persists long-term.", "Complex global supply chain."]'
+      data-evidence='["Cobalt extraction has labor concerns.","Battery waste persists long-term.","Complex global supply chain."]'
     >
-      <img src="에어팟.png" alt="earbuds">
-      <div class="sticker">Labor 76% · Environment 68%</div>
+      <div class="item-inner">
+        <img src="에어팟.png" alt="earbuds" />
+        <div class="sticker">Labor 76% · Env 68%</div>
+      </div>
     </div>
 
     <!-- CANDLE -->
     <div class="item candle"
       data-name="Scented Candle"
-      data-sub="Household fragrance product"
       data-labor="54"
       data-env="63"
       data-extra="240"
       data-supply="Wax production → Fragrance processing → Packaging"
-      data-evidence='["Wax production impacts land use.", "Glass packaging increases transport emissions.", "Multi-stage global processing."]'
+      data-evidence='["Wax production impacts land use.","Glass packaging increases transport emissions.","Multi-stage global processing."]'
     >
-      <img src="캔들.png" alt="candle">
-      <div class="sticker">Environment 63%</div>
+      <div class="item-inner">
+        <img src="캔들.png" alt="candle" />
+        <div class="sticker">Env 63% · Labor 54%</div>
+      </div>
     </div>
 
-    <!-- WATER -->
+    <!-- WATER BOTTLE -->
     <div class="item water"
       data-name="Plastic Water Bottle"
-      data-sub="Single-use beverage container"
       data-labor="52"
       data-env="81"
       data-extra="380"
       data-supply="Water extraction → Plastic molding → Filling → Retail"
-      data-evidence='["Plastic persists for centuries.", "High fossil fuel use in production.", "Low global recycling rates."]'
+      data-evidence='["Plastic persists for centuries.","High fossil fuel use in production.","Low global recycling rates."]'
     >
-      <img src="물병.png" alt="water bottle">
-      <div class="sticker">Environment 81%</div>
+      <div class="item-inner">
+        <img src="물병.png" alt="water bottle" />
+        <div class="sticker">Env 81%</div>
+      </div>
     </div>
 
     <!-- COFFEE -->
     <div class="item coffee"
       data-name="Iced Coffee"
-      data-sub="Common beverage product"
       data-labor="62"
       data-env="57"
       data-extra="200"
       data-supply="Coffee farming → Processing → Transport → Retail cup usage"
-      data-evidence='["Price volatility affects farmers.", "Single-use cups create waste.", "Long supply chain."]'
+      data-evidence='["Price volatility affects farmers.","Single-use cups create waste.","Long supply chain."]'
     >
-      <img src="커피.png" alt="coffee">
-      <div class="sticker">Labor 62% · Environment 57%</div>
+      <div class="item-inner">
+        <img src="커피.png" alt="coffee" />
+        <div class="sticker">Labor 62% · Env 57%</div>
+      </div>
     </div>
 
     <!-- LIP BALM -->
     <div class="item lip"
       data-name="Lip Balm Stick"
-      data-sub="Cosmetic skincare product"
       data-labor="48"
       data-env="48"
       data-extra="640"
       data-supply="Raw oils → Pigments → Plastic casing → Assembly"
-      data-evidence='["Cosmetic minerals sourced globally.", "Small plastic components rarely recycled.", "Multistage production chain."]'
+      data-evidence='["Cosmetic minerals sourced globally.","Small plastic components rarely recycled.","Multistage production chain."]'
     >
-      <img src="립밤.png" alt="lip balm">
-      <div class="sticker">Labor 48% · Environment 48%</div>
+      <div class="item-inner">
+        <img src="립밤.png" alt="lip balm" />
+        <div class="sticker">Labor 48% · Env 48%</div>
+      </div>
     </div>
 
-    <div class="bottom-note">Click items to view impact assessment</div>
-
+    <div class="bottom-note">Click an object → add to cart → use Cart button to checkout</div>
   </main>
 
-  <!-- MODAL -->
-  <div class="backdrop" id="backdrop">
+  <!-- MODAL (item details + add to cart) -->
+  <div class="backdrop" id="modal-backdrop">
     <div class="modal">
-      <button class="modal-close" id="close">Close ✕</button>
-
+      <button class="modal-close" id="modal-close">Close ✕</button>
       <div class="modal-title" id="m-title"></div>
       <div class="modal-sub" id="m-sub"></div>
 
-      <div class="chip bad">Labor <span id="m-labor"></span></div>
-      <div class="chip bad">Environment <span id="m-env"></span></div>
-      <div class="chip">CEO ratio <span id="m-extra"></span></div>
+      <div class="chips">
+        <span class="chip bad">Labor <span id="m-labor"></span></span>
+        <span class="chip bad">Environment <span id="m-env"></span></span>
+        <span class="chip">CEO ratio <span id="m-extra"></span></span>
+      </div>
 
       <div class="progress-bar">
         <div class="progress-fill" id="m-progress"></div>
@@ -343,61 +531,194 @@
 
       <ul class="evidence" id="m-evidence"></ul>
 
-      <div class="cta-main">Consider alternative purchasing actions</div>
+      <div class="modal-actions">
+        <button class="btn-add" id="btn-add">Add to cart</button>
+        <div class="hint">Cart collects impact data instead of price.</div>
+      </div>
+    </div>
+  </div>
 
+  <!-- RECEIPT SCREEN (checkout result) -->
+  <div class="receipt-screen" id="receipt-screen">
+    <div class="receipt">
+      <div class="receipt-header">
+        <strong>IMPACT RECEIPT</strong><br/>
+        REAL SHOP
+      </div>
+
+      <div class="receipt-line"></div>
+
+      <div id="receipt-body">
+        <!-- JS will inject text here -->
+      </div>
+
+      <div class="receipt-line"></div>
+
+      <div class="receipt-footer">
+        This receipt summarizes impact instead of price.<br/>
+        <button class="receipt-btn" id="receipt-back">Back to shop</button>
+      </div>
     </div>
   </div>
 
   <script>
+    // ---------- DATA & STATE ----------
+
     const items = document.querySelectorAll(".item");
-    const backdrop = document.getElementById("backdrop");
+    const modalBackdrop = document.getElementById("modal-backdrop");
+    const modalClose = document.getElementById("modal-close");
+    const cartButton = document.getElementById("cart-button");
+    const addButton = document.getElementById("btn-add");
 
-    const mTitle = document.getElementById("m-title");
-    const mSub   = document.getElementById("m-sub");
-    const mLabor = document.getElementById("m-labor");
-    const mEnv   = document.getElementById("m-env");
-    const mExtra = document.getElementById("m-extra");
-    const mSupply= document.getElementById("m-supply");
-    const mEvidence = document.getElementById("m-evidence");
-    const mProgress = document.getElementById("m-progress");
-    const closeBtn = document.getElementById("close");
+    const mTitle   = document.getElementById("m-title");
+    const mSub     = document.getElementById("m-sub");
+    const mLabor   = document.getElementById("m-labor");
+    const mEnv     = document.getElementById("m-env");
+    const mExtra   = document.getElementById("m-extra");
+    const mSupply  = document.getElementById("m-supply");
+    const mEvidence= document.getElementById("m-evidence");
+    const mProgress= document.getElementById("m-progress");
 
-    function openModal(el){
-      const labor = Number(el.dataset.labor || 0);
-      const env   = Number(el.dataset.env || 0);
-      const extra = el.dataset.extra;
+    const receiptScreen = document.getElementById("receipt-screen");
+    const receiptBody   = document.getElementById("receipt-body");
+    const receiptBack   = document.getElementById("receipt-back");
 
-      mTitle.textContent = el.dataset.name;
-      mSub.textContent   = el.dataset.sub;
-      mLabor.textContent = labor + "%";
-      mEnv.textContent   = env + "%";
-      mExtra.textContent = extra + "×";
-      mSupply.textContent= el.dataset.supply;
+    let currentItem = null;
+    const cart = [];
 
-      mProgress.style.width = Math.round((labor+env)/2) + "%";
+    // ---------- MODAL LOGIC ----------
 
+    function openModal(item) {
+      currentItem = {
+        name: item.dataset.name,
+        labor: Number(item.dataset.labor || 0),
+        env: Number(item.dataset.env || 0),
+        extra: Number(item.dataset.extra || 0),
+        supply: item.dataset.supply || "",
+        evidence: []
+      };
+
+      mTitle.textContent = currentItem.name;
+      mSub.textContent   = "Impact profile for this object.";
+      mLabor.textContent = currentItem.labor + "%";
+      mEnv.textContent   = currentItem.env + "%";
+      mExtra.textContent = currentItem.extra + "×";
+      mSupply.textContent= currentItem.supply;
+
+      // Progress bar: average of labor & env
+      const avg = Math.round((currentItem.labor + currentItem.env) / 2);
+      mProgress.style.width = avg + "%";
+
+      // Evidence list
       mEvidence.innerHTML = "";
-      JSON.parse(el.dataset.evidence || "[]").forEach(e => {
-        const li=document.createElement("li");
-        li.textContent=e;
-        mEvidence.appendChild(li);
-      });
+      try {
+        const ev = JSON.parse(item.dataset.evidence || "[]");
+        currentItem.evidence = ev;
+        ev.forEach(e => {
+          const li = document.createElement("li");
+          li.textContent = e;
+          mEvidence.appendChild(li);
+        });
+      } catch (e) {
+        currentItem.evidence = [];
+      }
 
-      backdrop.classList.add("active");
+      modalBackdrop.classList.add("active");
     }
 
-    items.forEach(el=>{
-      el.addEventListener("click",()=>openModal(el));
+    function closeModal() {
+      modalBackdrop.classList.remove("active");
+      currentItem = null;
+    }
+
+    items.forEach(item => {
+      item.addEventListener("click", () => openModal(item));
     });
 
-    function closeModal(){
-      backdrop.classList.remove("active");
+    modalClose.addEventListener("click", closeModal);
+
+    modalBackdrop.addEventListener("click", (e) => {
+      if (e.target === modalBackdrop) closeModal();
+    });
+
+    // ---------- CART LOGIC ----------
+
+    function updateCartLabel() {
+      cartButton.textContent = `Cart (${cart.length})`;
     }
-    closeBtn.addEventListener("click", closeModal);
-    backdrop.addEventListener("click",(e)=>{ if(e.target===backdrop)closeModal(); });
-    window.addEventListener("keydown",(e)=>{ if(e.key=="Escape")closeModal(); });
 
+    addButton.addEventListener("click", () => {
+      if (!currentItem) return;
+      cart.push({...currentItem});
+      updateCartLabel();
+      closeModal();
+    });
+
+    // ---------- RECEIPT / CHECKOUT LOGIC ----------
+
+    function renderReceipt() {
+      if (cart.length === 0) {
+        alert("Your cart is empty.");
+        return;
+      }
+
+      let totalLabor = 0;
+      let totalEnv = 0;
+      let totalExtra = 0;
+
+      cart.forEach(item => {
+        totalLabor += item.labor;
+        totalEnv   += item.env;
+        totalExtra += item.extra;
+      });
+
+      const n = cart.length;
+      const avgLabor = Math.round(totalLabor / n);
+      const avgEnv   = Math.round(totalEnv / n);
+      const avgExtra = Math.round(totalExtra / n);
+
+      const now = new Date();
+      const timestamp = now.toLocaleString();
+
+      let text = "";
+      text += "Date/Time : " + timestamp + "\n";
+      text += "Items     : " + n + "\n";
+      text += "--------------------------------\n";
+      text += "ITEM IMPACTS\n";
+      cart.forEach((item, idx) => {
+        text += `${idx+1}. ${item.name}\n`;
+        text += `   Labor       : ${item.labor}%\n`;
+        text += `   Environment : ${item.env}%\n`;
+        text += `   CEO ratio   : ${item.extra}×\n`;
+      });
+      text += "--------------------------------\n";
+      text += "AGGREGATED IMPACT\n";
+      text += `Average labor       : ${avgLabor}%\n`;
+      text += `Average environment : ${avgEnv}%\n`;
+      text += `Average CEO ratio   : ${avgExtra}×\n`;
+      text += "--------------------------------\n";
+
+      receiptBody.textContent = text;
+      receiptScreen.classList.add("active");
+    }
+
+    cartButton.addEventListener("click", renderReceipt);
+
+    receiptBack.addEventListener("click", () => {
+      receiptScreen.classList.remove("active");
+    });
+
+    // ESC to close modal / receipt
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (modalBackdrop.classList.contains("active")) {
+          closeModal();
+        } else if (receiptScreen.classList.contains("active")) {
+          receiptScreen.classList.remove("active");
+        }
+      }
+    });
   </script>
-
 </body>
 </html>
+
