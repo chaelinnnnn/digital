@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Checkout – REAL shop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <style>
+    @font-face {
+      font-family: 'Gotham';
+      src: url('Gotham-Regular.otf') format('opentype');
+      font-weight: 400;
+    }
+    @font-face {
+      font-family: 'Gotham';
+      src: url('Gotham-Medium.otf') format('opentype');
+      font-weight: 500;
+    }
+    @font-face {
+      font-family: 'Gotham';
+      src: url('Gotham-Bold.otf') format('opentype');
+      font-weight: 700;
+    }
+    @font-face {
+      font-family: 'Gotham';
+      src: url('Gotham-Ultra.otf') format('opentype');
+      font-weight: 900;
+    }
+
+    body {
+      background:#ffffff;
+      font-family:'Gotham', system-ui, sans-serif;
+      font-weight:400;
+      padding:30px 20px 40px;
+      max-width:600px;
+      margin:0 auto;
+    }
+    h1 {
+      font-weight:700; /* Gotham-Bold */
+      margin:0 0 10px;
+      letter-spacing:0.04em;
+    }
+    .desc {
+      font-size:13px;
+      opacity:0.7;
+      margin-bottom:18px;
+    }
+    .item {
+      margin:6px 0;
+      font-size:16px;
+      font-weight:500; /* Gotham-Medium */
+    }
+    .btn {
+      margin-top:22px;
+      padding:10px 20px;
+      background:#111;
+      color:#fff;
+      border:none;
+      cursor:pointer;
+      border-radius:6px;
+      font-size:15px;
+      font-family:'Gotham';
+      font-weight:500;
+    }
+    .back {
+      margin-top:10px;
+      font-size:13px;
+      text-decoration:underline;
+      cursor:pointer;
+      display:inline-block;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Your bag</h1>
+  <div class="desc">You are about to check out an impact-only purchase.</div>
+
+  <div id="list"></div>
+
+  <button class="btn" onclick="goReceipt()">Proceed to receipt</button>
+  <div class="back" onclick="goBack()">← back to REAL shop</div>
+
+  <script>
+    let bag = JSON.parse(localStorage.getItem("impactBag") || "[]");
+    const list = document.getElementById("list");
+
+    if (bag.length === 0) {
+      list.innerHTML = "<div>No items in bag.</div>";
+    } else {
+      bag.forEach(i => {
+        list.innerHTML += `
+          <div class="item">
+            • Labor ${i.labor}% / Environment ${i.env}% / CEO ${i.extra}×
+          </div>
+        `;
+      });
+    }
+
+    function goReceipt(){
+      window.location.href = "receipt.html";
+    }
+    function goBack(){
+      window.location.href = "index.html";
+    }
+  </script>
+
+</body>
+</html>
