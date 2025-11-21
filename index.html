@@ -1,519 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>REAL shop – impact receipt</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@300;400;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8"/>
+  <title>Receipt – REAL shop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
   <style>
-    * { box-sizing: border-box; }
-
-    :root {
-      --bg: #ffffff;
-      --mint: #c8fff2;
-      --yellow: #fff46a;
-      --red-soft: #ff6363;
-      --gray: #111111;
-    }
-
     body {
-      margin: 0;
-      background: var(--bg);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--gray);
-      overflow: hidden;
+      background:#f7f4ec;
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      overflow:hidden;
     }
 
-    main {
-      height: 100vh;
-      width: 100%;
-      overflow: hidden;
-      position: relative;
-    }
-
-    /* header */
-
-    .header {
-      position: relative;
-      text-align: center;
-      padding-top: 26px;
-      z-index: 5;
-    }
-
-    .title {
-      font-family: "Gaegu", system-ui, sans-serif;
-      font-size: 38px;
-    }
-
-    .subtitle {
-      margin-top: 6px;
-      font-family: "Gaegu", system-ui, sans-serif;
-      font-size: 14px;
-      background: var(--mint);
-      padding: 4px 12px;
-      border-radius: 999px;
-      display: inline-block;
-      transform: rotate(-1deg);
-    }
-
-    .cart-button {
-      position: absolute;
-      right: 16px;
-      top: 18px;
-      font-family: "Gaegu", system-ui, sans-serif;
-      font-size: 13px;
-      padding: 6px 12px;
-      border-radius: 999px;
-      background: #111;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      box-shadow: 2px 2px 0 #00000055;
-    }
-
-    .bottom-note {
-      position: fixed;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-family: "Gaegu", system-ui, sans-serif;
-      background: var(--mint);
-      padding: 6px 14px;
-      border-radius: 999px;
-      font-size: 12px;
-      z-index: 4;
-      box-shadow: 2px 2px 0 #11111133;
-    }
-
-    /* floating items */
-
-    .item {
-      position: absolute;
-      cursor: pointer;
-      z-index: 1;
-    }
-
-    .item img {
-      max-width: 170px;
-      height: auto;
-      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.18));
-      display: block;
-    }
-
-    .item-inner {
-      animation: float 8s ease-in-out infinite alternate;
-    }
-
-    .item.phone   .item-inner { animation-duration: 9s;   animation-delay: -1s; }
-    .item.tshirt  .item-inner { animation-duration: 7.5s; animation-delay: -2s; }
-    .item.airbuds .item-inner { animation-duration: 8.5s; animation-delay: -1.5s; }
-    .item.candle  .item-inner { animation-duration:10s;   animation-delay: -0.5s; }
-    .item.water   .item-inner { animation-duration: 9s;   animation-delay: -2.5s; }
-    .item.coffee  .item-inner { animation-duration: 8s;   animation-delay: -3s; }
-    .item.lip     .item-inner { animation-duration: 7.2s; animation-delay: -1.8s; }
-
-    @keyframes float {
-      0%   { transform: translate(0, 0); }
-      50%  { transform: translate(10px, -12px); }
-      100% { transform: translate(-8px, 6px); }
-    }
-
-    /* base positions */
-
-    .phone  { left: 4%;   top: 40%;  transform: rotate(-10deg); }
-    .tshirt { left: 32%;  top: 36%;  transform: rotate(  6deg); }
-    .airbuds{ left: 55%;  top: 30%;  transform: rotate( -5deg); }
-    .candle { right: 2%;  top: 20%;  transform: rotate(  9deg); }
-    .water  { right: 8%;  bottom: 12%;transform: rotate( -6deg); }
-    .coffee { left: 14%;  bottom: 0%; transform: rotate(  4deg); }
-    .lip    { left: 45%;  bottom: 8%; transform: rotate( -7deg); }
-
-    @media (max-width: 900px) {
-      .item img { max-width: 130px; }
-      .phone  { left: 4%;  top: 48%; }
-      .tshirt { left: 28%; top: 36%; }
-      .airbuds{ left: 55%; top: 44%; }
-      .candle { right: 0%; top: 14%; }
-      .water  { right: 4%; bottom: 8%; }
-      .coffee { left: 8%; bottom: -4%; }
-      .lip    { left: 40%; bottom: 10%; }
-    }
-
-    /* no sticker: keep class here but hide, just in case */
-
-    .sticker { display: none; }
-
-    /* modal */
-
-    .backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.35);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 20;
-    }
-    .backdrop.active { display: flex; }
-
-    .modal {
-      background: #fffdf8;
-      width: min(360px, 92vw);
-      max-height: 70vh;
-      border-radius: 16px;
-      border: 2px solid #111;
-      box-shadow: 8px 8px 0 #111;
-      padding: 18px 18px 20px;
-      position: relative;
-      overflow-y: auto;
-      text-align: left;
-    }
-
-    .modal-title {
-      font-family: "Gaegu", system-ui, sans-serif;
-      font-size: 20px;
-      margin-bottom: 6px;
-    }
-
-    .modal-sub {
-      font-size: 12px;
-      opacity: 0.75;
-      margin-bottom: 18px;
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 10px;
-      right: 14px;
-      border: none;
-      background: #111;
-      color: #fff;
-      border-radius: 999px;
-      font-family: "Gaegu";
-      font-size: 12px;
-      padding: 3px 10px;
-      cursor: pointer;
-    }
-
-    .btn-add {
-      border: none;
-      background: #111;
-      color: #fff;
-      font-family: "Gaegu";
-      font-size: 13px;
-      padding: 7px 16px;
-      border-radius: 999px;
-      cursor: pointer;
-      display: inline-block;
-      box-shadow: 3px 3px 0 #00000055;
-    }
-
-    /* receipt screen */
-
-    .receipt-screen {
-      position: fixed;
-      inset: 0;
-      background: #f7f4ec;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 30;
-    }
-
-    .receipt-screen.active {
-      display: flex;
-    }
-
+    /* Receipt container (starts above viewport) */
     .receipt {
-      background: #fffef9;
-      border: 1px solid #000;
-      box-shadow: 8px 8px 0 #111;
-      padding: 18px 16px 18px;
-      width: min(360px, 90vw);
-      font-family: "SF Mono", "Menlo", "Consolas", monospace;
-      font-size: 12px;
-      position: relative;
+      background:#fffef9;
+      padding:20px;
+      border:1px solid #000;
+      width:360px;
+      font-family: monospace;
       white-space: pre-wrap;
+      box-shadow: 8px 8px 0 #222;
+      position: relative;
+
+      /* start position: above screen */
+      transform: translateY(-120%);
+      opacity: 0;
+
+      animation: drop 1.8s ease-out forwards,
+                 vibrate 0.15s ease-in-out 1.8s 4;
     }
 
+    /* Drop-down printer animation */
+    @keyframes drop {
+      0%   { transform: translateY(-120%); opacity: 0; }
+      50%  { transform: translateY(-20%); opacity: 1; }
+      65%  { transform: translateY(-10%); }
+      80%  { transform: translateY(-6%); }
+      100% { transform: translateY(0%); }
+    }
+
+    /* Small vibration after landing */
+    @keyframes vibrate {
+      0% { transform: translateY(0); }
+      25% { transform: translateY(2px); }
+      50% { transform: translateY(-1px); }
+      75% { transform: translateY(1px); }
+      100% { transform: translateY(0); }
+    }
+
+    /* printed receipt edges */
     .receipt::before,
     .receipt::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      height: 6px;
+      content:"";
+      position:absolute;
+      left:0; right:0;
+      height:6px;
       background-image: repeating-linear-gradient(
         to right,
-        #000 0,
-        #000 4px,
-        transparent 4px,
-        transparent 8px
+        #000 0, #000 4px,
+        transparent 4px, transparent 8px
       );
     }
-    .receipt::before { top: 0; }
-    .receipt::after  { bottom: 0; }
+    .receipt::before { top:0; }
+    .receipt::after  { bottom:0; }
 
-    .receipt-header {
-      text-align: center;
-      margin-bottom: 8px;
+    .btn {
+      margin-top:16px;
+      padding:6px 14px;
+      border:1px solid #000;
+      background:#fff;
+      cursor:pointer;
+      display:block;
+      width:fit-content;
     }
 
-    .receipt-header strong {
-      letter-spacing: 0.16em;
+    /* printing… message */
+    #print-msg {
+      font-family: monospace;
+      font-size: 14px;
+      opacity:0.7;
+      margin-bottom:20px;
+      animation: fadeout 1.2s ease-out forwards;
     }
 
-    .receipt-line {
-      border-bottom: 1px dashed #000;
-      margin: 6px 0;
+    @keyframes fadeout {
+      0% { opacity:0; }
+      50% { opacity:1; }
+      100% { opacity:0; }
     }
 
-    .receipt-footer {
-      margin-top: 10px;
-      text-align: center;
-      font-size: 11px;
-    }
-
-    .receipt-btn {
-      margin-top: 6px;
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid #000;
-      background: #fff;
-      cursor: pointer;
-    }
   </style>
 </head>
 
 <body>
-  <main>
-    <div class="header">
-      <div class="title">welcome to REAL shop!</div>
-      <div class="subtitle">Click objects · add to bag · checkout for impact receipt</div>
-      <button class="cart-button" id="cart-button">Bag (0)</button>
-    </div>
 
-    <!-- floating items -->
+  <div id="print-msg">printing…</div>
+  <div class="receipt" id="receipt"></div>
 
-    <!-- PHONE -->
-    <div class="item phone"
-      data-labor="78"
-      data-env="82"
-      data-extra="1500"
-    >
-      <div class="item-inner">
-        <img src="phone.png" alt="phone" />
-      </div>
-    </div>
-
-    <!-- T-SHIRT -->
-    <div class="item tshirt"
-      data-labor="91"
-      data-env="83"
-      data-extra="412"
-    >
-      <div class="item-inner">
-        <img src="tshirt.png" alt="t-shirt" />
-      </div>
-    </div>
-
-    <!-- EARBUDS -->
-    <div class="item airbuds"
-      data-labor="76"
-      data-env="68"
-      data-extra="1520"
-    >
-      <div class="item-inner">
-        <img src="earbuds.png" alt="earbuds" />
-      </div>
-    </div>
-
-    <!-- CANDLE -->
-    <div class="item candle"
-      data-labor="54"
-      data-env="63"
-      data-extra="240"
-    >
-      <div class="item-inner">
-        <img src="candle.png" alt="candle" />
-      </div>
-    </div>
-
-    <!-- WATER BOTTLE -->
-    <div class="item water"
-      data-labor="52"
-      data-env="81"
-      data-extra="380"
-    >
-      <div class="item-inner">
-        <img src="waterbottle.png" alt="water bottle" />
-      </div>
-    </div>
-
-    <!-- COFFEE -->
-    <div class="item coffee"
-      data-labor="62"
-      data-env="57"
-      data-extra="200"
-    >
-      <div class="item-inner">
-        <img src="coffee.png" alt="coffee" />
-      </div>
-    </div>
-
-    <!-- LIP BALM -->
-    <div class="item lip"
-      data-labor="48"
-      data-env="48"
-      data-extra="640"
-    >
-      <div class="item-inner">
-        <img src="lipbalm.png" alt="lip balm" />
-      </div>
-    </div>
-
-    <div class="bottom-note">Click an object → Add to bag → use Bag button to see receipt</div>
-  </main>
-
-  <!-- MODAL: minimal, no impact numbers shown -->
-  <div class="backdrop" id="modal-backdrop">
-    <div class="modal">
-      <button class="modal-close" id="modal-close">Close ✕</button>
-      <div class="modal-title">Add to bag?</div>
-      <div class="modal-sub">
-        Impact information for this object will appear in your receipt after checkout.
-      </div>
-      <button class="btn-add" id="btn-add">Add to bag</button>
-    </div>
-  </div>
-
-  <!-- RECEIPT SCREEN -->
-  <div class="receipt-screen" id="receipt-screen">
-    <div class="receipt">
-      <div class="receipt-header">
-        <strong>IMPACT RECEIPT</strong><br/>
-        REAL SHOP
-      </div>
-
-      <div class="receipt-line"></div>
-
-      <div id="receipt-body"></div>
-
-      <div class="receipt-line"></div>
-
-      <div class="receipt-footer">
-        This receipt shows only impact values, instead of prices.<br/>
-        <button class="receipt-btn" id="receipt-back">Back to shop</button>
-      </div>
-    </div>
-  </div>
+  <audio id="print-sound">
+    <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=" type="audio/wav">
+  </audio>
 
   <script>
-    const items = document.querySelectorAll(".item");
-    const modalBackdrop = document.getElementById("modal-backdrop");
-    const modalClose = document.getElementById("modal-close");
-    const addButton = document.getElementById("btn-add");
-    const cartButton = document.getElementById("cart-button");
+    let bag = JSON.parse(localStorage.getItem("impactBag") || "[]");
+    const receipt = document.getElementById("receipt");
+    const printSound = document.getElementById("print-sound");
 
-    const receiptScreen = document.getElementById("receipt-screen");
-    const receiptBody   = document.getElementById("receipt-body");
-    const receiptBack   = document.getElementById("receipt-back");
-
-    let currentItem = null;
-    const bag = [];
-
-    function openModalFor(item) {
-      currentItem = {
-        labor: Number(item.dataset.labor || 0),
-        env:   Number(item.dataset.env   || 0),
-        extra: Number(item.dataset.extra || 0)
-      };
-      modalBackdrop.classList.add("active");
-    }
-
-    function closeModal() {
-      modalBackdrop.classList.remove("active");
-      currentItem = null;
-    }
-
-    items.forEach(item => {
-      item.addEventListener("click", () => openModalFor(item));
-    });
-
-    modalClose.addEventListener("click", closeModal);
-
-    modalBackdrop.addEventListener("click", (e) => {
-      if (e.target === modalBackdrop) closeModal();
-    });
-
-    addButton.addEventListener("click", () => {
-      if (!currentItem) return;
-      bag.push({...currentItem});
-      cartButton.textContent = `Bag (${bag.length})`;
-      closeModal();
-    });
-
-    function renderReceipt() {
-      if (bag.length === 0) {
-        alert("Your bag is empty.");
+    function buildReceipt(){
+      if(bag.length === 0){
+        receipt.textContent = "No items.";
         return;
       }
 
-      let text = "";
-      const now = new Date();
-      text += "Date/Time : " + now.toLocaleString() + "\n";
-      text += "Items     : " + bag.length + "\n";
-      text += "------------------------------------\n";
-      text += "Items purchased:\n\n";
+      let totalL=0, totalE=0, totalC=0;
+      let txt = "IMPACT RECEIPT\n";
+      txt += "------------------------------------\n";
+      txt += "Items purchased:\n\n";
 
-      let totalLabor = 0;
-      let totalEnv   = 0;
-      let totalExtra = 0;
-
-      bag.forEach(item => {
-        totalLabor += item.labor;
-        totalEnv   += item.env;
-        totalExtra += item.extra;
-
-        text += `• Labor ${item.labor}% / Environment ${item.env}% / CEO ${item.extra}×\n`;
+      bag.forEach(i=>{
+        txt += `• Labor ${i.labor}% / Environment ${i.env}% / CEO ${i.extra}×\n`;
+        totalL += Number(i.labor);
+        totalE += Number(i.env);
+        totalC += Number(i.extra);
       });
 
       const n = bag.length;
-      const avgLabor = Math.round(totalLabor / n);
-      const avgEnv   = Math.round(totalEnv   / n);
-      const avgExtra = Math.round(totalExtra / n);
+      txt += "\n------------------------------------\n";
+      txt += "Averages:\n";
+      txt += `Labor        ${Math.round(totalL/n)}%\n`;
+      txt += `Environment  ${Math.round(totalE/n)}%\n`;
+      txt += `CEO ratio    ${Math.round(totalC/n)}×\n\n`;
 
-      text += "\n------------------------------------\n";
-      text += "Averages:\n";
-      text += `Labor       ${avgLabor}%\n`;
-      text += `Environment ${avgEnv}%\n`;
-      text += `CEO ratio   ${avgExtra}×\n`;
+      txt += `<button class="btn" onclick="back()">Back to shop</button>`;
 
-      receiptBody.textContent = text;
-      receiptScreen.classList.add("active");
+      return txt;
     }
 
-    cartButton.addEventListener("click", renderReceipt);
+    // show receipt after short delay (mimics printing)
+    setTimeout(()=>{
+      printSound.volume = 0.4;
+      printSound.play();
 
-    receiptBack.addEventListener("click", () => {
-      receiptScreen.classList.remove("active");
-    });
+      receipt.innerHTML = buildReceipt();
+    }, 900);
 
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        if (modalBackdrop.classList.contains("active")) {
-          closeModal();
-        } else if (receiptScreen.classList.contains("active")) {
-          receiptScreen.classList.remove("active");
-        }
-      }
-    });
+    function back(){
+      localStorage.removeItem("impactBag");
+      location.href = "index.html";
+    }
   </script>
+
 </body>
 </html>
-
