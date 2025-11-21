@@ -30,16 +30,16 @@
     * { box-sizing:border-box; }
 
     body {
-      background:#f7f4ec;
-      min-height:100vh;
       margin:0;
+      height:100vh;
       display:flex;
       justify-content:center;
       align-items:flex-start;
       padding-top:40px;
-      overflow-y:auto;
+      background:#f7f4ec;
       font-family:'Gotham', system-ui, sans-serif;
-      font-weight:500; /* Gotham-Medium 느낌 */
+      font-weight:500;
+      overflow:hidden;
     }
 
     #print-msg {
@@ -51,11 +51,10 @@
       opacity:0.8;
       animation: fadeout 1.4s ease-out forwards;
     }
-
     @keyframes fadeout {
       0% { opacity:0; }
-      40% { opacity:1; }
-      100% { opacity:0; }
+      40%{ opacity:1; }
+      100%{ opacity:0; }
     }
 
     .receipt {
@@ -64,16 +63,15 @@
       border:1px solid #000;
       width:min(360px, 90vw);
       position:relative;
-      text-align:center;  /* 중앙 정렬 */
+      text-align:center;
       line-height:1.4;
 
-      transform: translateY(-120%);
+      transform:translateY(-120%);
       opacity:0;
-      animation: drop 1.8s ease-out forwards,
-                 vibrate 0.15s ease-in-out 1.8s 4;
+      animation: drop 1.6s ease-out forwards;
     }
 
-    /* 위/아래 톱니 절취선 */
+    /* 위/아래 점선 절취선 */
     .receipt::before,
     .receipt::after {
       content:"";
@@ -90,39 +88,27 @@
     .receipt::after  { bottom:0; }
 
     @keyframes drop {
-      0%   { transform: translateY(-120%); opacity:0; }
-      50%  { transform: translateY(-20%); opacity:1; }
-      70%  { transform: translateY(-8%); }
-      100% { transform: translateY(0); }
-    }
-
-    @keyframes vibrate {
-      0% { transform: translateY(0); }
-      25% { transform: translateY(2px); }
-      50% { transform: translateY(-1px); }
-      75% { transform: translateY(1px); }
-      100% { transform: translateY(0); }
+      0%   { transform:translateY(-120%); opacity:0; }
+      60%  { transform:translateY(10%);  opacity:1; }
+      80%  { transform:translateY(-4%); }
+      100% { transform:translateY(0); }
     }
 
     .title {
       font-weight:700;
       letter-spacing:0.18em;
-      margin-bottom:4px;
-      margin-top:4px;
+      margin:4px 0;
       font-size:13px;
     }
-
     .sub {
       font-size:11px;
       opacity:0.7;
-      margin-bottom:8px;
+      margin-bottom:6px;
     }
-
     .line {
       border-bottom:1px dashed #000;
       margin:6px 0 10px;
     }
-
     .section-title {
       font-size:11px;
       text-transform:uppercase;
@@ -130,23 +116,19 @@
       opacity:0.8;
       margin-bottom:4px;
     }
-
     .item-line {
       font-size:12px;
       margin:3px 0;
     }
-
     .avg-line {
       font-size:12px;
       margin:2px 0;
     }
-
     .footer {
       font-size:11px;
       opacity:0.8;
       margin-top:8px;
     }
-
     .btn {
       margin-top:10px;
       padding:6px 14px;
@@ -165,7 +147,6 @@
   <div id="print-msg">printing...</div>
   <div class="receipt" id="receipt"></div>
 
-  <!-- 아주 짧은 dummy 사운드 (원하면 나중에 실제 프린터 사운드로 교체) -->
   <audio id="print-sound">
     <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=" type="audio/wav">
   </audio>
@@ -176,56 +157,53 @@
     const sound = document.getElementById("print-sound");
 
     function buildReceipt(){
-      if (bag.length === 0) {
-        return "No items.\n\n<button class=\"btn\" onclick=\"back()\">Back to shop</button>";
+      if (bag.length === 0){
+        return '<div class="title">IMPACT RECEIPT</div>' +
+               '<div class="sub">No items.</div>' +
+               '<button class="btn" onclick="back()">Back to shop</button>';
       }
 
-      let totalL=0, totalE=0, totalC=0;
-      let lines = [];
+      let tL=0,tE=0,tC=0;
+      let html = '';
 
-      lines.push('<div class="title">IMPACT RECEIPT</div>');
-      lines.push('<div class="sub">REAL SHOP</div>');
-      lines.push('<div class="line"></div>');
+      html += '<div class="title">IMPACT RECEIPT</div>';
+      html += '<div class="sub">REAL SHOP</div>';
+      html += '<div class="line"></div>';
 
       const now = new Date();
-      lines.push(`<div style="font-size:11px; margin-bottom:6px;">${now.toLocaleString()}</div>`);
+      html += `<div style="font-size:11px;margin-bottom:6px;">${now.toLocaleString()}</div>`;
+      html += '<div class="section-title">items purchased</div>';
 
-      lines.push('<div class="section-title">items purchased</div>');
-
-      bag.forEach(i => {
-        totalL += Number(i.labor);
-        totalE += Number(i.env);
-        totalC += Number(i.extra);
-        lines.push(
-          `<div class="item-line">Labor ${i.labor}% / Environment ${i.env}% / CEO ${i.extra}×</div>`
-        );
+      bag.forEach(i=>{
+        tL += Number(i.labor);
+        tE += Number(i.env);
+        tC += Number(i.extra);
+        html += `<div class="item-line">Labor ${i.labor}% / Environment ${i.env}% / CEO ${i.extra}×</div>`;
       });
 
       const n = bag.length;
-      const avgL = Math.round(totalL/n);
-      const avgE = Math.round(totalE/n);
-      const avgC = Math.round(totalC/n);
+      const avgL = Math.round(tL/n);
+      const avgE = Math.round(tE/n);
+      const avgC = Math.round(tC/n);
 
-      lines.push('<div class="line"></div>');
-      lines.push('<div class="section-title">averages</div>');
-      lines.push(`<div class="avg-line">Labor        ${avgL}%</div>`);
-      lines.push(`<div class="avg-line">Environment  ${avgE}%</div>`);
-      lines.push(`<div class="avg-line">CEO ratio    ${avgC}×</div>`);
+      html += '<div class="line"></div>';
+      html += '<div class="section-title">averages</div>';
+      html += `<div class="avg-line">Labor        ${avgL}%</div>`;
+      html += `<div class="avg-line">Environment  ${avgE}%</div>`;
+      html += `<div class="avg-line">CEO ratio    ${avgC}×</div>`;
+      html += '<div class="footer">This receipt shows impact instead of price.</div>';
+      html += '<button class="btn" onclick="back()">Back to shop</button>';
 
-      lines.push('<div class="footer">This receipt shows impact instead of price.</div>');
-      lines.push('<button class="btn" onclick="back()">Back to shop</button>');
-
-      return lines.join('');
+      return html;
     }
 
-    // play sound & inject content with slight delay (프린트 느낌)
     setTimeout(() => {
       try {
         sound.volume = 0.4;
         sound.play();
-      } catch(e) {}
+      } catch(e){}
       receipt.innerHTML = buildReceipt();
-    }, 900);
+    }, 700);
 
     function back(){
       localStorage.removeItem("impactBag");
