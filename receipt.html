@@ -1,215 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <title>Receipt – REAL shop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<title>Receipt</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    @font-face {
-      font-family: 'Gotham';
-      src: url('Gotham-Regular.otf') format('opentype');
-      font-weight: 400;
-    }
-    @font-face {
-      font-family: 'Gotham';
-      src: url('Gotham-Medium.otf') format('opentype');
-      font-weight: 500;
-    }
-    @font-face {
-      font-family: 'Gotham';
-      src: url('Gotham-Bold.otf') format('opentype');
-      font-weight: 700;
-    }
-    @font-face {
-      font-family: 'Gotham';
-      src: url('Gotham-Ultra.otf') format('opentype');
-      font-weight: 900;
-    }
+<style>
+/* -------------------- FONTS -------------------- */
+@font-face {
+  font-family: 'Gotham';
+  src: url('fonts/Gotham-Regular.otf') format('opentype');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'Gotham';
+  src: url('fonts/Gotham-Medium.otf') format('opentype');
+  font-weight: 500;
+}
+@font-face {
+  font-family: 'Gotham';
+  src: url('fonts/Gotham-Bold.otf') format('opentype');
+  font-weight: 700;
+}
 
-    * { box-sizing:border-box; }
+/* -------------------- PAGE -------------------- */
 
-    body {
-      margin:0;
-      height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:flex-start;
-      padding-top:40px;
-      background:#f7f4ec;
-      font-family:'Gotham', system-ui, sans-serif;
-      font-weight:500;
-      overflow:hidden;
-    }
+body {
+  margin: 0;
+  height: 100vh;
+  background: #ffffff; /* pure white */
+  font-family: 'Gotham', system-ui, sans-serif;
+  font-weight: 500;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 40px;
+  overflow-x: hidden;
+  overflow-y: auto; /* <-- prevents disappearing */
+}
 
-    #print-msg {
-      position:absolute;
-      top:12px;
-      left:50%;
-      transform:translateX(-50%);
-      font-size:13px;
-      opacity:0.8;
-      animation: fadeout 1.4s ease-out forwards;
-    }
-    @keyframes fadeout {
-      0% { opacity:0; }
-      40%{ opacity:1; }
-      100%{ opacity:0; }
-    }
+/* -------------------- RECEIPT ANIMATION -------------------- */
+@keyframes drop {
+  0%   { transform: translateY(-120%); opacity: 0; }
+  60%  { transform: translateY(10%);  opacity: 1; }
+  80%  { transform: translateY(-4%); }
+  100% { transform: translateY(0); }
+}
 
-    .receipt {
-      background:#fffef9;
-      padding:18px 16px 20px;
-      border:1px solid #000;
-      width:min(360px, 90vw);
-      position:relative;
-      text-align:center;
-      line-height:1.4;
+/* -------------------- RECEIPT STYLE -------------------- */
+.receipt {
+  background: #fffef9;
+  padding: 20px 20px 28px;
+  border: 1px solid #000;
+  width: min(360px, 90vw);
+  position: relative;
+  text-align: left;
+  line-height: 1.45;
 
-      transform:translateY(-120%);
-      opacity:0;
-      animation: drop 1.6s ease-out forwards;
-    }
+  transform: translateY(-120%);
+  opacity: 0;
+  animation: drop 1.6s ease-out forwards;
 
-    /* 위/아래 점선 절취선 */
-    .receipt::before,
-    .receipt::after {
-      content:"";
-      position:absolute;
-      left:0; right:0;
-      height:6px;
-      background-image: repeating-linear-gradient(
-        to right,
-        #000 0, #000 4px,
-        transparent 4px, transparent 8px
-      );
-    }
-    .receipt::before { top:0; }
-    .receipt::after  { bottom:0; }
+  /* shadow under paper */
+  box-shadow: 0px 16px 50px rgba(0,0,0,0.25);
+}
 
-    @keyframes drop {
-      0%   { transform:translateY(-120%); opacity:0; }
-      60%  { transform:translateY(10%);  opacity:1; }
-      80%  { transform:translateY(-4%); }
-      100% { transform:translateY(0); }
-    }
+/* Dotted divider */
+.divider {
+  border-bottom: 1px dashed #000;
+  margin: 16px 0;
+}
 
-    .title {
-      font-weight:700;
-      letter-spacing:0.18em;
-      margin:4px 0;
-      font-size:13px;
-    }
-    .sub {
-      font-size:11px;
-      opacity:0.7;
-      margin-bottom:6px;
-    }
-    .line {
-      border-bottom:1px dashed #000;
-      margin:6px 0 10px;
-    }
-    .section-title {
-      font-size:11px;
-      text-transform:uppercase;
-      letter-spacing:0.08em;
-      opacity:0.8;
-      margin-bottom:4px;
-    }
-    .item-line {
-      font-size:12px;
-      margin:3px 0;
-    }
-    .avg-line {
-      font-size:12px;
-      margin:2px 0;
-    }
-    .footer {
-      font-size:11px;
-      opacity:0.8;
-      margin-top:8px;
-    }
-    .btn {
-      margin-top:10px;
-      padding:6px 14px;
-      border:1px solid #000;
-      background:#fff;
-      cursor:pointer;
-      font-family:'Gotham';
-      font-size:11px;
-      border-radius:999px;
-    }
-  </style>
+/* items style */
+.item {
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+/* header */
+.title {
+  font-size: 20px;
+  text-align: center;
+  margin-bottom: 14px;
+  font-weight: 700;
+}
+
+/* total */
+.total {
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: 14px;
+  text-align: right;
+}
+
+.footer {
+  margin-top: 22px;
+  font-size: 12px;
+  text-align: center;
+  opacity: 0.7;
+}
+</style>
 </head>
 
 <body>
 
-  <div id="print-msg">printing...</div>
-  <div class="receipt" id="receipt"></div>
+<div class="receipt">
 
-  <audio id="print-sound">
-    <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=" type="audio/wav">
-  </audio>
+  <div class="title">Purchase Receipt</div>
 
-  <script>
-    let bag = JSON.parse(localStorage.getItem("impactBag") || "[]");
-    const receipt = document.getElementById("receipt");
-    const sound = document.getElementById("print-sound");
+  <div class="divider"></div>
 
-    function buildReceipt(){
-      if (bag.length === 0){
-        return '<div class="title">IMPACT RECEIPT</div>' +
-               '<div class="sub">No items.</div>' +
-               '<button class="btn" onclick="back()">Back to shop</button>';
-      }
+  <!-- Items dynamically included -->
+  <!-- Example structure:
+       Labor 78% • Env 82% • CEO 1500×
+  -->
 
-      let tL=0,tE=0,tC=0;
-      let html = '';
+  <div id="receipt-items"></div>
 
-      html += '<div class="title">IMPACT RECEIPT</div>';
-      html += '<div class="sub">REAL SHOP</div>';
-      html += '<div class="line"></div>';
+  <div class="divider"></div>
 
-      const now = new Date();
-      html += `<div style="font-size:11px;margin-bottom:6px;">${now.toLocaleString()}</div>`;
-      html += '<div class="section-title">items purchased</div>';
+  <div class="total" id="total-lines">Total: —</div>
 
-      bag.forEach(i=>{
-        tL += Number(i.labor);
-        tE += Number(i.env);
-        tC += Number(i.extra);
-        html += `<div class="item-line">Labor ${i.labor}% / Environment ${i.env}% / CEO ${i.extra}×</div>`;
-      });
+  <div class="footer">
+    Thank you for shopping with REAL Shop.<br>
+    Impact shouldn’t be invisible.
+  </div>
 
-      const n = bag.length;
-      const avgL = Math.round(tL/n);
-      const avgE = Math.round(tE/n);
-      const avgC = Math.round(tC/n);
+</div>
 
-      html += '<div class="line"></div>';
-      html += '<div class="section-title">averages</div>';
-      html += `<div class="avg-line">Labor        ${avgL}%</div>`;
-      html += `<div class="avg-line">Environment  ${avgE}%</div>`;
-      html += `<div class="avg-line">CEO ratio    ${avgC}×</div>`;
-      html += '<div class="footer">This receipt shows impact instead of price.</div>';
-      html += '<button class="btn" onclick="back()">Back to shop</button>';
+<script>
+/* ---------------------------------------------------
+   Load purchased impact items saved from checkout
+--------------------------------------------------- */
 
-      return html;
-    }
+const saved = localStorage.getItem("impactCart");
+let items = [];
 
-    setTimeout(() => {
-      try {
-        sound.volume = 0.4;
-        sound.play();
-      } catch(e){}
-      receipt.innerHTML = buildReceipt();
-    }, 700);
+if (saved) items = JSON.parse(saved);
 
-    function back(){
-      localStorage.removeItem("impactBag");
-      window.location.href = "index.html";
-    }
-  </script>
+/* inject into receipt */
+const container = document.getElementById("receipt-items");
+const totalDiv = document.getElementById("total-lines");
+
+if (items.length === 0) {
+  container.innerHTML = "<div class='item'>No items were recorded.</div>";
+  totalDiv.textContent = "Total: —";
+} else {
+
+  items.forEach(i => {
+    const line = document.createElement("div");
+    line.className = "item";
+    line.textContent = `Labor ${i.labor}% • Env ${i.env}% • CEO ${i.ceo}×`;
+    container.appendChild(line);
+  });
+
+  totalDiv.textContent = `Items: ${items.length}`;
+}
+</script>
 
 </body>
 </html>
