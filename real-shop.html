@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>REAL shop – welcome</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- 손글씨 느낌 폰트 (원하면 바꿔도 됨) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@300;400;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    :root {
+      --bg: #ffffff;
+      --yellow: #fff46a;
+      --mint: #c8fff2;
+      --pink: #ffe7f2;
+      --red-soft: #ff6363;
+      --gray: #111111;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--gray);
+      overflow: hidden;
+    }
+
+    /* 브라우저 프레임 느낌 */
+    .fake-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 30px;
+      background: #f4f4f4;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      z-index: 50;
+    }
+    .dots {
+      display: flex;
+      gap: 5px;
+      margin-right: 10px;
+    }
+    .dots span {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: #ff5f57;
+    }
+    .dots span:nth-child(2){background:#febc2e;}
+    .dots span:nth-child(3){background:#28c840;}
+    .url-bar {
+      flex: 1;
+      height: 18px;
+      border-radius: 999px;
+      background: #ffffff;
+      padding: 0 8px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      color: #777;
+    }
+
+    main {
+      height: 100vh;
+      padding-top: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .title-wrap {
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 10;
+    }
+    .title {
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: clamp(32px, 4vw, 44px);
+    }
+    .subtitle {
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 13px;
+      background: var(--mint);
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-top: 6px;
+      transform: rotate(-2deg);
+    }
+
+    /* 상품 이미지들 */
+    .item {
+      position: absolute;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .item img {
+      display: block;
+      max-width: 170px;
+      height: auto;
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.18));
+    }
+    .item:hover {
+      transform: translateY(-6px) rotate(1.5deg);
+    }
+
+    /* 대충 네가 만든 레이아웃 비슷하게 배치 */
+    .item.phone { left: 4%;  top: 42%; transform: rotate(-12deg); }
+    .item.tshirt{ left: 32%; top: 38%; transform: rotate(8deg); }
+    .item.airpods{ left: 55%; top: 30%; transform: rotate(-5deg); }
+    .item.candle{ right: -2%; top: 20%; transform: rotate(10deg); }
+    .item.water { right: 8%; bottom: 8%; transform: rotate(-6deg); }
+    .item.coffee{ left: 16%; bottom: -2%; transform: rotate(4deg); }
+    .item.lip   { left: 45%; bottom: 8%; transform: rotate(-8deg); }
+
+    @media (max-width: 900px) {
+      .item img { max-width: 130px; }
+      .item.phone { left: 2%;  top: 55%; }
+      .item.tshirt{ left: 24%; top: 42%; }
+      .item.airpods{ left: 56%; top: 46%; }
+      .item.candle{ right: -10%; top: 12%; }
+      .item.water { right: 2%; bottom: 4%; }
+      .item.coffee{ left: 10%; bottom: -6%; }
+      .item.lip   { left: 40%; bottom: 4%; }
+    }
+
+    /* 호버 스티커 */
+    .sticker {
+      position: absolute;
+      left: 50%;
+      top: -18px;
+      transform: translateX(-50%) rotate(-4deg);
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 11px;
+      background: var(--yellow);
+      padding: 3px 8px;
+      border-radius: 8px;
+      border: 1px solid #11111155;
+      box-shadow: 2px 2px 0 #11111133;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      white-space: nowrap;
+    }
+    .item:hover .sticker {
+      opacity: 1;
+    }
+
+    /* 모달 */
+    .backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .backdrop.active { display: flex; }
+
+    .modal {
+      width: min(480px, 92vw);
+      max-height: 80vh;
+      overflow-y: auto;
+      background: #fffdf8;
+      border-radius: 16px;
+      border: 2px solid #111;
+      box-shadow: 8px 8px 0 #111;
+      padding: 18px 18px 20px;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      border: none;
+      background: #111;
+      color: #fff;
+      border-radius: 999px;
+      padding: 2px 10px;
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .modal-title {
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+    .modal-sub {
+      font-size: 12px;
+      opacity: 0.75;
+      margin-bottom: 10px;
+    }
+    .score-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .chip {
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 12px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1.5px solid #11111199;
+      background: #fff;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .chip.bad {
+      background: #ffe9e9;
+      border-color: var(--red-soft);
+      color: #7c1111;
+    }
+    .score-num { font-weight: 700; }
+
+    .progress-bar {
+      height: 7px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #f2f2f2;
+      margin-bottom: 12px;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg,#ffd36f,var(--red-soft));
+    }
+
+    .map-box {
+      border-radius: 10px;
+      border: 1px dashed #11111166;
+      background: #ffffff;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .map-box::before {
+      content: "supply map";
+      position: absolute;
+      top: -11px;
+      left: 10px;
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 11px;
+      background: #fffdf8;
+      padding: 0 6px;
+    }
+    .map-line {
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 13px;
+    }
+
+    .cute-note {
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 12px;
+      background: var(--yellow);
+      padding: 6px 10px;
+      border-radius: 8px;
+      display: inline-block;
+      transform: rotate(-2deg);
+      margin-top: 6px;
+    }
+
+    .evidence {
+      font-size: 12px;
+      margin: 12px 0;
+      padding-left: 17px;
+    }
+    .evidence li { margin-bottom: 4px; }
+
+    .cta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .cta-main {
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: #111;
+      color: #fff;
+    }
+    .cta-sub {
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px dashed #111;
+      background: #fff;
+    }
+
+    .bottom-note {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: "Gaegu", system-ui, sans-serif;
+      font-size: 11px;
+      background: var(--mint);
+      padding: 5px 14px;
+      border-radius: 999px;
+      box-shadow: 2px 2px 0 #11111122;
+    }
+  </style>
+</head>
+<body>
+  <div class="fake-bar">
+    <div class="dots"><span></span><span></span><span></span></div>
+    <div class="url-bar">realshop.fake / welcome</div>
+  </div>
+
+  <main>
+    <div class="title-wrap">
+      <div class="title">welcome to REAL shop!</div>
+      <div class="subtitle">귀여운 물건들 뒤에 살짝 붙어 있는 &ldquo;진짜 가격&rdquo; 보기</div>
+    </div>
+
+    <!-- iphone -->
+    <div class="item phone"
+      data-name="Midnight Phone"
+      data-sub="손 안에 쏙 들어오는 예쁜 스마트폰"
+      data-labor="78"
+      data-env="82"
+      data-extra="1500"
+      data-supply="희귀 금속 채굴지 → 부품 공장 → 조립 공장 → 전세계 매장"
+      data-note="반짝이는 화면 뒤에서, 광산과 공장 요정들이 오래오래 일하고 있어요."
+      data-evidence='["코발트·리튬 같은 광물은 위험한 환경에서 채굴되는 경우가 많아요.",
+        "전자제품 생산과 운송, 폐기 과정은 많은 탄소와 전자 폐기물을 남겨요.",
+        "일부 IT 기업 CEO의 연봉은 평균 노동자의 수천 배에 이르기도 해요."]'
+    >
+      <img src="/mnt/data/MGFH4.png" alt="phone" />
+      <div class="sticker">노동 78% · 환경 82%</div>
+    </div>
+
+    <!-- t-shirt -->
+    <div class="item tshirt"
+      data-name="Basic White Tee"
+      data-sub="제일 무난해서 더 자주 사게 되는 티셔츠"
+      data-labor="91"
+      data-env="83"
+      data-extra="412"
+      data-supply="면 재배지 → 방적·직조 → 봉제 공장 → 물류센터 → 매장"
+      data-note="바느질 요정들이 하루 12–14시간 동안 바쁘게 움직였어요."
+      data-evidence='["티셔츠 1장을 만드는 데 평균 2,700L의 물이 사용된다고 알려져 있어요.",
+        "패스트패션 공장 노동자들은 종종 아주 낮은 임금과 긴 근무시간에 노출돼요.",
+        "팔리지 못한 옷은 대량 폐기되거나 다른 나라로 보내져 쓰레기가 되기도 해요."]'
+    >
+      <img src="/mnt/data/티셔츠.png" alt="t-shirt" />
+      <div class="sticker">노동 91% · 환경 83%</div>
+    </div>
+
+    <!-- airpods -->
+    <div class="item airpods"
+      data-name="Wireless Earbuds"
+      data-sub="선 없이 편하지만, 선이 이어져 있는 곳이 있어요"
+      data-labor="76"
+      data-env="68"
+      data-extra="1520"
+      data-supply="광물 채굴 → 부품 공장 → 조립 공장 → 브랜드 포장"
+      data-note="코발트 요정들이 거의 쉬지 못하고 광산을 오가요."
+      data-evidence='["코발트 채굴에는 아동 노동과 위험한 작업 환경이 동원된다는 보고가 있어요.",
+        "작은 전자제품이지만 배터리와 부품 폐기는 환경에 오래 남아요.",
+        "브랜드 가치가 높을수록, 생산 현장과 임금 구조는 잘 보이지 않기도 해요."]'
+    >
+      <img src="/mnt/data/에어팟.png" alt="earbuds" />
+      <div class="sticker">노동 76% · 환경 68%</div>
+    </div>
+
+    <!-- candle -->
+    <div class="item candle"
+      data-name="Fancy Scent Candle"
+      data-sub="집을 순식간에 힙하게 만들어주는 향초"
+      data-labor="54"
+      data-env="63"
+      data-extra="240"
+      data-supply="팜유·왁스 농장 → 향료 생산 → 유리 용기 공장 → 완제품 포장"
+      data-note="촛불 요정이 따뜻한 빛을 만들었지만, 숲 친구들이 조금 베였어요."
+      data-evidence='["팜유 생산을 위해 열대우림이 베어지는 경우가 많아요.",
+        "향료와 왁스, 유리 병까지 여러 나라를 거치며 이동해요.",
+        "고급 브랜드일수록 생산자보다 마케팅과 이미지에 더 많은 비용이 쓰이기도 해요."]'
+    >
+      <img src="/mnt/data/캔들.png" alt="candle" />
+      <div class="sticker">환경 63% · 자원 54%</div>
+    </div>
+
+    <!-- water bottle -->
+    <div class="item water"
+      data-name="Plastic Water Bottle"
+      data-sub="언제 어디서나 편하게 마실 수 있는 한 병"
+      data-labor="52"
+      data-env="81"
+      data-extra="380"
+      data-supply="지하수·수원 → 플라스틱 병 공장 → 충전 → 유통센터 → 자판기"
+      data-note="물 친구가 플라스틱 집에 갇혀서, 아주 오래오래 떠다니게 돼요."
+      data-evidence='["일회용 플라스틱 병은 몇 분 사용되고 수백 년 동안 남아요.",
+        "플라스틱 생산에는 석유와 에너지가 많이 쓰여요.",
+        "재활용되지 못한 병들은 바다와 매립지로 흘러 들어가요."]'
+    >
+      <img src="/mnt/data/물병.png" alt="water bottle" />
+      <div class="sticker">환경 81% · 플라스틱</div>
+    </div>
+
+    <!-- coffee -->
+    <div class="item coffee"
+      data-name="Iced Latte To-Go"
+      data-sub="하루를 시작하게 해주는 단골 메뉴"
+      data-labor="62"
+      data-env="57"
+      data-extra="200"
+      data-supply="커피 농장 → 생두 가공 → 로스팅 → 카페 → 일회용 컵"
+      data-note="커피콩 친구들이 아주 멀리 여행하는 동안, 컵은 금방 버려져요."
+      data-evidence='["커피 가격이 떨어지면 농부들이 받는 돈은 더 줄어들 수 있어요.",
+        "일회용 컵과 뚜껑, 빨대는 잠깐 쓰이고 바로 쓰레기가 돼요.",
+        "카페 로고가 유명해질수록 생산자 몫은 상대적으로 작아질 때도 있어요."]'
+    >
+      <img src="/mnt/data/커피.png" alt="coffee" />
+      <div class="sticker">노동 62% · 환경 57%</div>
+    </div>
+
+    <!-- lip balm -->
+    <div class="item lip"
+      data-name="Soft Glow Stick"
+      data-sub="입술과 볼에 반짝이는 생기를 더해주는 립밤/치크 스틱"
+      data-labor="48"
+      data-env="48"
+      data-extra="640"
+      data-supply="시어버터·오일 채취 → 색소·운모 채굴 → 용기 플라스틱 공장 → 조립"
+      data-note="반짝이를 만드는 요정들이 아주 작고 반짝이는 가루들 사이에서 일해요."
+      data-evidence='["화장품 원료 중 일부 광물은 안전하지 않은 현장에서 채굴되기도 해요.",
+        "작은 용기지만 플라스틱과 포장재는 쉽게 분리·재활용되지 않아요.",
+        "브랜드 이미지와 광고에 비해 생산자와 환경에 대한 정보는 잘 보이지 않아요."]'
+    >
+      <img src="/mnt/data/립밤.png" alt="lip balm" />
+      <div class="sticker">자원 73% · CEO 640×</div>
+    </div>
+
+    <div class="bottom-note">
+      물건을 클릭하면 &ldquo;진짜 가격&rdquo;이 살짝 나타나요 ✶
+    </div>
+  </main>
+
+  <!-- modal -->
+  <div class="backdrop" id="backdrop">
+    <div class="modal">
+      <button class="modal-close" id="modal-close">닫기 ✕</button>
+      <div class="modal-title" id="m-title">상품 이름</div>
+      <div class="modal-sub" id="m-sub">상품 설명</div>
+
+      <div class="score-row">
+        <div class="chip bad">노동 <span class="score-num" id="m-labor">0%</span></div>
+        <div class="chip bad">환경 <span class="score-num" id="m-env">0%</span></div>
+        <div class="chip">CEO 보상비율 <span class="score-num" id="m-extra">0×</span></div>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="m-progress"></div>
+      </div>
+
+      <div class="map-box">
+        <div class="map-line" id="m-supply">
+          공급망 정보
+        </div>
+        <div class="cute-note" id="m-note">
+          귀여운 문장
+        </div>
+      </div>
+
+      <ul class="evidence" id="m-evidence"></ul>
+
+      <div class="cta">
+        <div class="cta-main">🌱 다음엔 조금 다르게 사볼까 생각해 보기</div>
+        <div class="cta-sub">가격표 뒤의 세계를 한 번 떠올려 보기</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const items = document.querySelectorAll(".item");
+    const backdrop = document.getElementById("backdrop");
+    const closeBtn = document.getElementById("modal-close");
+
+    const mTitle = document.getElementById("m-title");
+    const mSub = document.getElementById("m-sub");
+    const mLabor = document.getElementById("m-labor");
+    const mEnv = document.getElementById("m-env");
+    const mExtra = document.getElementById("m-extra");
+    const mSupply = document.getElementById("m-supply");
+    const mNote = document.getElementById("m-note");
+    const mEvidence = document.getElementById("m-evidence");
+    const mProgress = document.getElementById("m-progress");
+
+    function openModal(el) {
+      const labor = Number(el.dataset.labor || 0);
+      const env = Number(el.dataset.env || 0);
+      const extra = el.dataset.extra || "-";
+
+      mTitle.textContent = el.dataset.name || "";
+      mSub.textContent = el.dataset.sub || "";
+      mLabor.textContent = labor + "%";
+      mEnv.textContent = env + "%";
+      mExtra.textContent = extra + "×";
+      mSupply.textContent = el.dataset.supply || "";
+      mNote.textContent = el.dataset.note || "";
+
+      // evidence 리스트
+      mEvidence.innerHTML = "";
+      let ev = [];
+      try {
+        ev = JSON.parse(el.dataset.evidence || "[]");
+      } catch(e) { ev = []; }
+      ev.forEach(t => {
+        const li = document.createElement("li");
+        li.textContent = t;
+        mEvidence.appendChild(li);
+      });
+
+      const avg = Math.round((labor + env) / 2);
+      mProgress.style.width = avg + "%";
+
+      backdrop.classList.add("active");
+    }
+
+    items.forEach(el => {
+      el.addEventListener("click", () => openModal(el));
+    });
+
+    function closeModal() {
+      backdrop.classList.remove("active");
+    }
+
+    closeBtn.addEventListener("click", closeModal);
+    backdrop.addEventListener("click", (e) => {
+      if (e.target === backdrop) closeModal();
+    });
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeModal();
+    });
+  </script>
+</body>
+</html>
+
