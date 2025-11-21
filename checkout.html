@@ -1,146 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bag – REAL shop</title>
+<meta charset="UTF-8">
+<title>Checkout – REAL SHOP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    /* FONTS */
-    @font-face {
-      font-family: 'GothamRegular';
-      src: url('Gotham-Regular.otf') format('opentype');
-    }
-    @font-face {
-      font-family: 'GothamMedium';
-      src: url('Gotham-Medium.otf') format('opentype');
-    }
-    @font-face {
-      font-family: 'GothamBold';
-      src: url('Gotham-Bold.otf') format('opentype');
-    }
+<style>
+@font-face { font-family:'Gotham-Regular'; src:url('fonts/Gotham-Regular.otf'); }
+@font-face { font-family:'Gotham-Medium'; src:url('fonts/Gotham-Medium.otf'); }
+@font-face { font-family:'Gotham-Bold'; src:url('fonts/Gotham-Bold.otf'); }
 
-    body {
-      margin: 0;
-      background: #fafafa;
-      font-family: 'GothamRegular';
-      color: #111;
-    }
+body {
+  margin: 0;
+  font-family: 'Gotham-Regular';
+  background: white;
+}
 
-    header {
-      padding: 22px 60px;
-      display: flex;
-      justify-content: space-between;
-      font-family: 'GothamBold';
-      font-size: 14px;
-    }
+header {
+  padding: 30px 40px;
+  font-family: 'Gotham-Bold';
+  font-size: 18px;
+}
 
-    /* LAYOUT */
-    .container {
-      width: 100%;
-      display: flex;
-      padding: 60px 100px;
-      box-sizing: border-box;
-    }
+.container {
+  width: 420px;
+  margin: 60px auto;
+}
 
-    .left-area {
-      width: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .left-area img {
-      width: 65%;
-      filter: drop-shadow(0 20px 30px rgba(0,0,0,0.1));
-    }
+h2 {
+  font-family: 'Gotham-Bold';
+  margin-bottom: 30px;
+}
 
-    .right-area {
-      width: 50%;
-      padding-left: 50px;
-      box-sizing: border-box;
-      font-family: 'GothamMedium';
-    }
+label {
+  font-family: 'Gotham-Medium';
+  font-size: 14px;
+  margin-top: 15px;
+  display: block;
+}
 
-    .impact-box {
-      margin-top: 10px;
-      line-height: 1.9;
-      font-size: 15px;
-    }
+input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  margin-top: 6px;
+  font-family: 'Gotham-Regular';
+}
 
-    /* BUTTON */
-    .checkout-btn {
-      margin-top: 35px;
-      width: 260px;
-      padding: 16px;
-      border-radius: 8px;
-      font-size: 15px;
-      font-family: 'GothamBold';
-      background: #000;
-      color: #fff;
-      text-align: center;
-      cursor: pointer;
-    }
-
-    .back-link {
-      margin-top: 20px;
-      display: inline-block;
-      font-size: 13px;
-      opacity: 0.6;
-      cursor: pointer;
-    }
-  </style>
+.button {
+  margin-top: 30px;
+  padding: 16px;
+  width: 100%;
+  background: black;
+  color: white;
+  border-radius: 10px;
+  border: none;
+  font-family:'Gotham-Bold';
+  cursor: pointer;
+}
+</style>
 </head>
 
 <body>
 
-<header>
-  <div>REAL SHOP</div>
-  <div onclick="location.href='index.html'" style="cursor:pointer;">Home</div>
-</header>
+<header>REAL SHOP</header>
 
 <div class="container">
 
-  <div class="left-area">
-    <img id="itemImage" src="">
-  </div>
+  <h2>Checkout</h2>
 
-  <div class="right-area">
-    <h2 style="font-family:GothamBold; margin-bottom:25px;">
-      Bag
-    </h2>
+  <label>Name</label>
+  <input type="text">
 
-    <div class="impact-box" id="impactInfo"></div>
+  <label>Address</label>
+  <input type="text">
 
-    <div class="checkout-btn" onclick="location.href='payment.html'">
-      Proceed to checkout
-    </div>
+  <label>Email</label>
+  <input type="email">
 
-    <div class="back-link" onclick="location.href='index.html'">
-      ← Keep shopping
-    </div>
-  </div>
+  <label>Payment Method</label>
+  <input type="text">
+
+  <button class="button" onclick="location.href='receipt.html'">
+    Pay now
+  </button>
 
 </div>
-
-<script>
-  const item = JSON.parse(localStorage.getItem("selectedItem"));
-
-  document.getElementById("impactInfo").innerHTML = `
-    Labor impact: <b>${item.labor}</b><br>
-    Environmental impact: <b>${item.env}</b><br>
-    CEO ratio: <b>${item.ceo}</b>
-  `;
-
-  // 이미지 매칭 간단 처리
-  let imgSrc = "iphone.png";
-  if (item.labor.includes("52")) imgSrc = "tshirt.png";
-  if (item.labor.includes("61")) imgSrc = "earbuds.png";
-  if (item.labor.includes("33")) imgSrc = "candle.png";
-  if (item.labor.includes("27")) imgSrc = "waterbottle.png";
-  if (item.labor.includes("41")) imgSrc = "lipbalm.png";
-
-  document.getElementById("itemImage").src = imgSrc;
-</script>
 
 </body>
 </html>
