@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Shopping Bag – REAL shop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <style>
+    @font-face {
+      font-family: 'Gotham';
+      src: url('Gotham-Regular.otf') format('opentype');
+      font-weight: 400;
+    }
+    @font-face {
+      font-family: 'Gotham';
+      src: url('Gotham-Medium.otf') format('opentype');
+      font-weight: 500;
+    }
+    @font-face {
+      font-family: 'Gotham';
+      src: url('Gotham-Bold.otf') format('opentype');
+      font-weight: 700;
+    }
+    @font-face {
+      font-family: 'Gotham';
+      src: url('Gotham-Ultra.otf') format('opentype');
+      font-weight: 900;
+    }
+
+    * { box-sizing:border-box; }
+
+    body {
+      margin:0;
+      padding:32px 24px;
+      background:#f5f5f7;
+      font-family:'Gotham', system-ui, sans-serif;
+      font-weight:400;
+      color:#111;
+    }
+
+    .container {
+      max-width:1180px;
+      margin:0 auto;
+    }
+
+    .header-row {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:30px;
+    }
+    .header-row h1 {
+      margin:0;
+      font-size:26px;
+      font-weight:700;
+    }
+    .bag-count {
+      font-size:13px;
+      padding:4px 10px;
+      border-radius:999px;
+      background:#e5e5ea;
+    }
+    .close-link {
+      font-size:14px;
+      cursor:pointer;
+      opacity:0.7;
+    }
+
+    .layout {
+      display:flex;
+      gap:40px;
+      align-items:flex-start;
+    }
+    .items {
+      flex:2;
+      background:#fff;
+      border-radius:24px;
+      padding:28px 24px;
+    }
+    .summary {
+      flex:1;
+      background:#fff;
+      border-radius:24px;
+      padding:24px 22px;
+      position:sticky;
+      top:32px;
+      align-self:flex-start;
+    }
+
+    .item-row {
+      display:flex;
+      gap:18px;
+      padding:16px 0;
+      border-bottom:1px solid #eee;
+    }
+    .item-row:last-child {
+      border-bottom:none;
+    }
+    .thumb-wrap {
+      width:140px;
+      height:140px;
+      border-radius:20px;
+      overflow:hidden;
+      background:#fafafa;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+    .thumb-wrap img {
+      width:100%;
+      height:auto;
+      object-fit:contain;
+    }
+    .info {
+      flex:1;
+      font-size:13px;
+    }
+    .impact {
+      margin-top:6px;
+      font-size:12px;
+      opacity:0.8;
+    }
+    .qty-row {
+      margin-top:10px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    select {
+      font-family:'Gotham';
+      font-size:12px;
+      padding:4px 8px;
+      border-radius:8px;
+      border:1px solid #ccc;
+      background:#fafafa;
+    }
+    .remove-btn {
+      margin-top:10px;
+      font-size:12px;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid #ddd;
+      background:#f5f5f7;
+      cursor:pointer;
+    }
+
+    .summary-title {
+      font-weight:700;
+      margin-bottom:12px;
+      font-size:15px;
+    }
+    .summary-line {
+      display:flex;
+      justify-content:space-between;
+      font-size:13px;
+      margin:4px 0;
+    }
+    .summary-total {
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px solid #eee;
+      font-weight:500;
+    }
+    .primary-btn {
+      margin-top:18px;
+      width:100%;
+      padding:12px 0;
+      border:none;
+      border-radius:999px;
+      background:#111;
+      color:#fff;
+      font-family:'Gotham';
+      font-weight:500;
+      font-size:14px;
+      cursor:pointer;
+    }
+    .secondary-btn {
+      margin-top:10px;
+      width:100%;
+      padding:11px 0;
+      border-radius:999px;
+      border:1px solid #d2d2d7;
+      background:#fff;
+      font-family:'Gotham';
+      font-size:13px;
+      cursor:pointer;
+    }
+
+    @media(max-width:900px){
+      .layout { flex-direction:column; }
+      .summary { position:static; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header-row">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <h1>Shopping Bag</h1>
+        <span class="bag-count" id="bag-count">0 item</span>
+      </div>
+      <div class="close-link" onclick="backToShop()">Back to REAL shop ✕</div>
+    </div>
+
+    <div class="layout">
+      <div class="items" id="items"></div>
+
+      <div class="summary" id="summary">
+        <div class="summary-title">Summary</div>
+        <div class="summary-line"><span>Items</span><span id="sum-items">0</span></div>
+        <div class="summary-line"><span>Delivery</span><span>Free</span></div>
+        <div class="summary-line summary-total">
+          <span>Total impact score</span>
+          <span id="sum-score">–</span>
+        </div>
+
+        <button class="primary-btn" onclick="goCheckout()">Proceed to checkout</button>
+        <button class="secondary-btn" onclick="backToShop()">Continue shopping</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let bag = JSON.parse(localStorage.getItem("impactBag") || "[]");
+    const itemsEl = document.getElementById("items");
+    const bagCountEl = document.getElementById("bag-count");
+    const sumItemsEl = document.getElementById("sum-items");
+    const sumScoreEl = document.getElementById("sum-score");
+
+    function detectType(item){
+      const l = Number(item.labor), e = Number(item.env), c = Number(item.extra);
+      if (l===78 && e===82 && c===1500) return "phone";
+      if (l===91 && e===83 && c===412)  return "tshirt";
+      if (l===76 && e===68 && c===1520) return "earbuds";
+      if (l===54 && e===63 && c===240)  return "candle";
+      if (l===52 && e===81 && c===380)  return "waterbottle";
+      if (l===62 && e===57 && c===200)  return "coffee";
+      if (l===48 && e===48 && c===640)  return "lipbalm";
+      return "generic";
+    }
+
+    function imageFor(type){
+      switch(type){
+        case "phone":        return "cart-phone.png";
+        case "tshirt":       return "cart-tshirt.png";
+        case "earbuds":      return "cart-earbuds.png";
+        case "candle":       return "cart-candle.png";
+        case "waterbottle":  return "cart-waterbottle.png";
+        case "coffee":       return "cart-coffee.png";
+        case "lipbalm":      return "cart-lipbalm.png";
+        default:             return "cart-generic.png";
+      }
+    }
+
+    function render(){
+      itemsEl.innerHTML = "";
+      if (bag.length === 0){
+        itemsEl.innerHTML = "<div style='font-size:14px;'>Your bag is empty.</div>";
+        bagCountEl.textContent = "0 item";
+        sumItemsEl.textContent = "0";
+        sumScoreEl.textContent = "–";
+        return;
+      }
+
+      let totalImpact = 0;
+
+      bag.forEach((item, idx) => {
+        const type = detectType(item);
+        const impactScore = Math.round((Number(item.labor)+Number(item.env))/2);
+        totalImpact += impactScore;
+
+        itemsEl.innerHTML += `
+          <div class="item-row">
+            <div class="thumb-wrap">
+              <img src="${imageFor(type)}" alt="${type}">
+            </div>
+            <div class="info">
+              <div style="font-size:14px;font-weight:500;">Impact item #${idx+1}</div>
+              <div class="impact">
+                Labor ${item.labor}% · Environment ${item.env}% · CEO ${item.extra}×
+              </div>
+              <div class="qty-row">
+                <span>Qty</span>
+                <select data-index="${idx}">
+                  <option value="1" selected>1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                </select>
+              </div>
+              <button class="remove-btn" onclick="removeItem(${idx})">Remove</button>
+            </div>
+          </div>`;
+      });
+
+      bagCountEl.textContent = `${bag.length} item${bag.length>1?"s":""}`;
+      sumItemsEl.textContent = bag.length;
+      sumScoreEl.textContent = `${Math.round(totalImpact/bag.length)}`;
+    }
+
+    function removeItem(idx){
+      bag.splice(idx,1);
+      localStorage.setItem("impactBag", JSON.stringify(bag));
+      render();
+    }
+
+    function backToShop(){ window.location.href="index.html"; }
+    function goCheckout(){
+      if (bag.length===0) return;
+      window.location.href="checkout.html";
+    }
+
+    render();
+  </script>
+</body>
+</html>
