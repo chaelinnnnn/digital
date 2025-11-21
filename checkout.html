@@ -27,84 +27,256 @@
       font-weight: 900;
     }
 
+    * { box-sizing:border-box; }
+
     body {
-      background:#ffffff;
+      margin:0;
+      padding:32px 24px 40px;
+      background:#f5f5f7;
       font-family:'Gotham', system-ui, sans-serif;
       font-weight:400;
-      padding:30px 20px 40px;
-      max-width:600px;
+      color:#111;
+    }
+
+    .container {
+      max-width:1100px;
       margin:0 auto;
     }
-    h1 {
-      font-weight:700; /* Gotham-Bold */
-      margin:0 0 10px;
-      letter-spacing:0.04em;
+
+    .header-row {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:26px;
     }
-    .desc {
+    .header-row h1 {
+      margin:0;
+      font-size:26px;
+      font-weight:700;
+    }
+    .header-sub {
       font-size:13px;
       opacity:0.7;
-      margin-bottom:18px;
     }
-    .item {
-      margin:6px 0;
-      font-size:16px;
-      font-weight:500; /* Gotham-Medium */
-    }
-    .btn {
-      margin-top:22px;
-      padding:10px 20px;
-      background:#111;
-      color:#fff;
-      border:none;
+    .close-link {
+      font-size:14px;
+      opacity:0.7;
       cursor:pointer;
-      border-radius:6px;
+    }
+
+    .layout {
+      display:flex;
+      gap:40px;
+      align-items:flex-start;
+    }
+
+    .form-col {
+      flex:2;
+      background:#fff;
+      border-radius:24px;
+      padding:24px 24px 30px;
+    }
+    .summary-col {
+      flex:1;
+      background:#fff;
+      border-radius:24px;
+      padding:22px;
+      position:sticky;
+      top:32px;
+    }
+
+    .section-title {
       font-size:15px;
+      font-weight:600;
+      margin-top:4px;
+      margin-bottom:10px;
+    }
+    .section-sub {
+      font-size:12px;
+      opacity:0.7;
+      margin-bottom:12px;
+    }
+
+    label {
+      display:block;
+      font-size:12px;
+      margin:8px 0 4px;
+    }
+    input {
+      width:100%;
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid #d2d2d7;
       font-family:'Gotham';
+      font-size:13px;
+      background:#fdfdfd;
+    }
+    .row {
+      display:flex;
+      gap:10px;
+    }
+
+    .summary-title {
+      font-weight:600;
+      margin-bottom:10px;
+      font-size:15px;
+    }
+    .summary-line {
+      display:flex;
+      justify-content:space-between;
+      font-size:13px;
+      margin:4px 0;
+    }
+    .summary-total {
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px solid #eee;
       font-weight:500;
     }
-    .back {
-      margin-top:10px;
-      font-size:13px;
-      text-decoration:underline;
+    .primary-btn {
+      margin-top:18px;
+      width:100%;
+      padding:12px 0;
+      border:none;
+      border-radius:999px;
+      background:#111;
+      color:#fff;
+      font-family:'Gotham';
+      font-weight:500;
+      font-size:14px;
       cursor:pointer;
-      display:inline-block;
+    }
+    .fine {
+      margin-top:8px;
+      font-size:11px;
+      opacity:0.7;
+      line-height:1.4;
+    }
+
+    @media(max-width:900px){
+      .layout { flex-direction:column; }
+      .summary-col { position:static; }
     }
   </style>
 </head>
 
 <body>
+  <div class="container">
+    <div class="header-row">
+      <div>
+        <h1>Checkout</h1>
+        <div class="header-sub">You are about to pay with impact instead of money.</div>
+      </div>
+      <div class="close-link" onclick="back()">✕</div>
+    </div>
 
-  <h1>Your bag</h1>
-  <div class="desc">You are about to check out an impact-only purchase.</div>
+    <div class="layout">
+      <div class="form-col">
+        <div class="section-title">Contact</div>
+        <div class="section-sub">We will not actually collect this information.</div>
 
-  <div id="list"></div>
+        <label>Email</label>
+        <input placeholder="name@example.com">
 
-  <button class="btn" onclick="goReceipt()">Proceed to receipt</button>
-  <div class="back" onclick="goBack()">← back to REAL shop</div>
+        <div class="row">
+          <div style="flex:1;">
+            <label>First name</label>
+            <input>
+          </div>
+          <div style="flex:1;">
+            <label>Last name</label>
+            <input>
+          </div>
+        </div>
+
+        <div class="section-title" style="margin-top:20px;">Shipping address</div>
+
+        <label>Street address</label>
+        <input>
+
+        <div class="row">
+          <div style="flex:1;">
+            <label>City</label>
+            <input>
+          </div>
+          <div style="flex:1;">
+            <label>Postal code</label>
+            <input>
+          </div>
+        </div>
+
+        <div class="section-title" style="margin-top:20px;">Payment</div>
+        <div class="section-sub">Fake card fields for this project only.</div>
+
+        <label>Card number</label>
+        <input placeholder="1234 1234 1234 1234">
+
+        <div class="row">
+          <div style="flex:1;">
+            <label>Expiry</label>
+            <input placeholder="MM / YY">
+          </div>
+          <div style="flex:1;">
+            <label>CVC</label>
+            <input placeholder="123">
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-col" id="summary">
+        <div class="summary-title">Impact summary</div>
+        <div class="summary-line"><span>Items</span><span id="sum-items">0</span></div>
+        <div class="summary-line"><span>Avg labor</span><span id="sum-labor">–</span></div>
+        <div class="summary-line"><span>Avg environment</span><span id="sum-env">–</span></div>
+        <div class="summary-line"><span>Avg CEO ratio</span><span id="sum-ceo">–</span></div>
+
+        <div class="summary-line summary-total">
+          <span>Total impact</span><span id="sum-total">–</span>
+        </div>
+
+        <button class="primary-btn" onclick="pay()">Pay with this impact</button>
+        <div class="fine">By continuing, you agree to receive a receipt that shows impact instead of price.</div>
+      </div>
+    </div>
+  </div>
 
   <script>
     let bag = JSON.parse(localStorage.getItem("impactBag") || "[]");
-    const list = document.getElementById("list");
 
-    if (bag.length === 0) {
-      list.innerHTML = "<div>No items in bag.</div>";
+    const sumItems = document.getElementById("sum-items");
+    const sumLabor = document.getElementById("sum-labor");
+    const sumEnv   = document.getElementById("sum-env");
+    const sumCeo   = document.getElementById("sum-ceo");
+    const sumTotal = document.getElementById("sum-total");
+
+    if (bag.length === 0){
+      sumItems.textContent = "0";
+      sumLabor.textContent = "–";
+      sumEnv.textContent   = "–";
+      sumCeo.textContent   = "–";
+      sumTotal.textContent = "–";
     } else {
-      bag.forEach(i => {
-        list.innerHTML += `
-          <div class="item">
-            • Labor ${i.labor}% / Environment ${i.env}% / CEO ${i.extra}×
-          </div>
-        `;
+      let tL=0,tE=0,tC=0;
+      bag.forEach(i=>{
+        tL += Number(i.labor);
+        tE += Number(i.env);
+        tC += Number(i.extra);
       });
+      const n = bag.length;
+      const avgL = Math.round(tL/n);
+      const avgE = Math.round(tE/n);
+      const avgC = Math.round(tC/n);
+
+      sumItems.textContent = n;
+      sumLabor.textContent = avgL + "%";
+      sumEnv.textContent   = avgE + "%";
+      sumCeo.textContent   = avgC + "×";
+      sumTotal.textContent = Math.round((avgL+avgE)/2);
     }
 
-    function goReceipt(){
-      window.location.href = "receipt.html";
-    }
-    function goBack(){
-      window.location.href = "index.html";
-    }
+    function back(){ window.location.href="cart.html"; }
+    function pay(){ window.location.href="receipt.html"; }
   </script>
-
 </body>
 </html>
+
