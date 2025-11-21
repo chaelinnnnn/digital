@@ -1,165 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>REAL shop</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REAL SHOP</title>
 
-  <!-- Fonts -->
-  <style>
-    @font-face {
-      font-family: 'GothamRegular';
-      src: url('Gotham-Regular.otf') format('opentype');
-    }
-    @font-face {
-      font-family: 'GothamBold';
-      src: url('Gotham-Bold.otf') format('opentype');
-    }
+<style>
+/* Fonts */
+@font-face { font-family:'Gotham-Regular'; src:url('fonts/Gotham-Regular.otf'); }
+@font-face { font-family:'Gotham-Medium'; src:url('fonts/Gotham-Medium.otf'); }
+@font-face { font-family:'Gotham-Bold'; src:url('fonts/Gotham-Bold.otf'); }
 
-    body {
-      margin: 0;
-      padding: 0;
-      background: #ffffff;
-      font-family: 'GothamRegular', sans-serif;
-      color: #111;
-    }
+body {
+  margin: 0;
+  background: white;
+  font-family: 'Gotham-Regular';
+}
 
-    /* HEADER */
-    header {
-      width: 100%;
-      padding: 22px 60px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-sizing: border-box;
-      font-family: 'GothamBold';
-      font-size: 14px;
-    }
+header {
+  padding: 28px 40px;
+  font-family: 'Gotham-Bold';
+  font-size: 18px;
+}
 
-    .nav-left span {
-      margin-right: 32px;
-      cursor: pointer;
-    }
-    .nav-right span {
-      margin-left: 28px;
-      cursor: pointer;
-    }
+.grid {
+  padding: 60px;
+  display: grid;
+  gap: 60px;
+  grid-template-columns: repeat(3, 1fr);
+}
 
-    /* GRID */
-    .product-grid {
-      width: 100%;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      padding: 60px;
-      gap: 80px 60px;
-      box-sizing: border-box;
-    }
+.item {
+  text-align: center;
+  cursor: pointer;
+}
 
-    .item {
-      text-align: center;
-      cursor: pointer;
-      transition: 0.2s ease;
-    }
+.item img {
+  width: 70%;
+  filter: none;
+}
 
-    .item img {
-      width: 75%;
-      transition: 0.3s ease;
-      filter: drop-shadow(0 20px 25px rgba(0,0,0,0.08));
-    }
-
-    .item:hover img {
-      transform: translateY(-6px);
-      filter: drop-shadow(0 28px 35px rgba(0,0,0,0.12));
-    }
-
-    .item-title {
-      margin-top: 20px;
-      font-size: 14px;
-    }
-    .item-price {
-      margin-top: 5px;
-      font-size: 13px;
-      opacity: 0.6;
-    }
-
-    footer {
-      width: 100%;
-      padding: 80px 60px;
-      font-size: 12px;
-      opacity: 0.55;
-      text-align: center;
-    }
-  </style>
-
+.name {
+  margin-top: 12px;
+  font-family: 'Gotham-Medium';
+}
+</style>
 </head>
+
 <body>
 
-<header>
-  <div class="nav-left">
-    <span>Sunglasses</span>
-    <span>Eyewear</span>
-    <span>Collection</span>
-    <span>Store</span>
+<header>REAL SHOP</header>
+
+<div class="grid">
+
+  <div class="item" onclick="selectProduct('Smartphone', 'images/iphone.png', '128GB / Midnight', '₩280,000')">
+    <img src="images/iphone.png">
+    <div class="name">Smartphone</div>
   </div>
 
-  <div class="logo" style="font-size:26px; font-family:GothamBold;">
-    REAL SHOP
+  <div class="item" onclick="selectProduct('T-shirt', 'images/tshirt.png', 'Cotton / White', '₩35,000')">
+    <img src="images/tshirt.png">
+    <div class="name">T-shirt</div>
   </div>
 
-  <div class="nav-right">
-    <span onclick="location.href='checkout.html'">Bag</span>
-  </div>
-</header>
-
-<!-- PRODUCT GRID -->
-<div class="product-grid">
-
-  <div class="item" onclick="addToCart('Labor 78%', 'Environment 82%', 'CEO 1500×')">
-    <img src="iphone.png">
-    <div class="item-title">Smartphone</div>
-    <div class="item-price">—</div>
+  <div class="item" onclick="selectProduct('Earbuds', 'images/earbuds.png', 'Wireless', '₩120,000')">
+    <img src="images/earbuds.png">
+    <div class="name">Earbuds</div>
   </div>
 
-  <div class="item" onclick="addToCart('Labor 52%', 'Environment 38%', 'CEO 900×')">
-    <img src="tshirt.png">
-    <div class="item-title">T-shirt</div>
-    <div class="item-price">—</div>
+  <div class="item" onclick="selectProduct('Candle', 'images/candle.png', 'Scented', '₩18,000')">
+    <img src="images/candle.png">
+    <div class="name">Candle</div>
   </div>
 
-  <div class="item" onclick="addToCart('Labor 61%', 'Environment 44%', 'CEO 700×')">
-    <img src="earbuds.png">
-    <div class="item-title">Earbuds</div>
-    <div class="item-price">—</div>
+  <div class="item" onclick="selectProduct('Water Bottle', 'images/waterbottle.png', '1L / Clear', '₩22,000')">
+    <img src="images/waterbottle.png">
+    <div class="name">Water Bottle</div>
   </div>
 
-  <div class="item" onclick="addToCart('Labor 33%', 'Environment 92%', 'CEO 500×')">
-    <img src="candle.png">
-    <div class="item-title">Candle</div>
-    <div class="item-price">—</div>
-  </div>
-
-  <div class="item" onclick="addToCart('Labor 27%', 'Environment 67%', 'CEO 1100×')">
-    <img src="waterbottle.png">
-    <div class="item-title">Water Bottle</div>
-    <div class="item-price">—</div>
-  </div>
-
-  <div class="item" onclick="addToCart('Labor 41%', 'Environment 72%', 'CEO 450×')">
-    <img src="lipbalm.png">
-    <div class="item-title">Lip Balm</div>
-    <div class="item-price">—</div>
+  <div class="item" onclick="selectProduct('Lip Balm', 'images/lipbalm.png', 'Vanilla', '₩12,000')">
+    <img src="images/lipbalm.png">
+    <div class="name">Lip Balm</div>
   </div>
 
 </div>
 
-<footer>© 2025 REAL SHOP — A critical design project</footer>
-
-
 <script>
-function addToCart(labor, env, ceo) {
-  const item = { labor, env, ceo };
-  localStorage.setItem("selectedItem", JSON.stringify(item));
-  location.href = "checkout.html";
+function selectProduct(name, image, option, price) {
+  const item = { name, image, option, price };
+  localStorage.setItem("cartItem", JSON.stringify(item));
+  location.href = "cart.html";
 }
 </script>
 
