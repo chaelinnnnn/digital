@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout – REAL shop</title>
+
+  <style>
+    @font-face { font-family:'GothamRegular'; src:url('Gotham-Regular.otf'); }
+    @font-face { font-family:'GothamMedium'; src:url('Gotham-Medium.otf'); }
+    @font-face { font-family:'GothamBold'; src:url('Gotham-Bold.otf'); }
+
+    body {
+      background:#ffffff;
+      margin:0;
+      font-family:GothamRegular;
+      color:#111;
+    }
+
+    header {
+      padding:22px 60px;
+      font-family:GothamBold;
+      display:flex;
+      justify-content:space-between;
+    }
+
+    .container {
+      width: 480px;
+      margin: 0 auto;
+      margin-top: 80px;
+    }
+
+    h2 {
+      font-family:GothamBold;
+      margin-bottom: 35px;
+    }
+
+    label {
+      font-family:GothamMedium;
+      font-size:14px;
+      display:block;
+      margin:12px 0 6px;
+    }
+
+    input {
+      width:100%;
+      padding:14px;
+      border:1px solid #ccc;
+      border-radius:6px;
+      font-family:GothamRegular;
+    }
+
+    .pay-btn {
+      margin-top: 35px;
+      background:#111;
+      color:#fff;
+      text-align:center;
+      padding:18px;
+      border-radius:8px;
+      font-family:GothamBold;
+      cursor:pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div>REAL SHOP</div>
+</header>
+
+<div class="container">
+
+  <h2>Checkout</h2>
+
+  <label>Name</label>
+  <input type="text">
+
+  <label>Email</label>
+  <input type="email">
+
+  <label>Address</label>
+  <input type="text">
+
+  <label>Payment method</label>
+  <input type="text" placeholder="Card / Pay / etc.">
+
+  <div class="pay-btn" onclick="location.href='receipt.html'">
+    Pay now
+  </div>
+
+</div>
+
+</body>
+</html>
