@@ -28,6 +28,9 @@
         box-shadow: 0 8px 30px rgba(0,0,0,0.08);
         border: 1px solid #eee;
         animation: printDown 1.8s ease-out forwards;
+        white-space: pre-wrap;
+        font-size: 14px;
+        line-height: 1.55;
     }
 
     @keyframes printDown {
@@ -46,18 +49,6 @@
         margin: 18px 0;
     }
 
-    .label {
-        font-size: 14px;
-        margin-bottom: 6px;
-    }
-
-    .value {
-        font-family: 'Gotham-Bold';
-        margin-bottom: 10px;
-        font-size: 15px;
-    }
-
-    /* Download button */
     #downloadBtn {
         margin-top: 22px;
         width: 100%;
@@ -81,43 +72,207 @@
 
 <div id="receipt-wrapper">
 
-    <h2>Receipt</h2>
+<h2>Receipt</h2>
+<div class="line"></div>
 
-    <div class="line"></div>
+<div id="content"></div>
 
-    <div class="label">Labor impact</div>
-    <div class="value" id="labor"></div>
+<div class="line"></div>
 
-    <div class="label">Environmental impact</div>
-    <div class="value" id="env"></div>
+<button id="downloadBtn">Download receipt</button>
 
-    <div class="label">CEO ratio</div>
-    <div class="value" id="ceo"></div>
-
-    <div class="line"></div>
-
-    <button id="downloadBtn">Download receipt</button>
 </div>
 
-
 <script>
-// 🌟 Load data from previous page
-const params = new URLSearchParams(window.location.search);
-document.getElementById("labor").innerText = params.get("labor") + "%";
-document.getElementById("env").innerText = params.get("env") + "%";
-document.getElementById("ceo").innerText = params.get("ceo") + "×";
+// --------------------------
+// 1) Real Cost DATABASE
+// --------------------------
+const DATA = {
+    iphone: `
+1. Smartphone (iPhone archetype)
 
-// 🔊 Play printer sound on load
+Labor
+- Assembly worker wage: $2.50–$3.00/hour
+- Peak season: 60+ hours/week, forced overtime common
+- History of severe labor-rights issues (e.g., suicide-prevention nets installed at factories)
+
+Environment
+- 80% of total carbon emissions occur during manufacturing
+- Designed-to-fail repairs → contributes to e-waste crisis
+- Cobalt mining linked to child labor and soil contamination (DR Congo)
+
+Capital
+- CEO-to-worker pay ratio: 1,447:1
+- Only 1–2% of the phone’s price goes to assembly labor
+- 50–60% of profit flows to corporate margin + licensing
+
+Supply Chain
+California → DR Congo → Taiwan/Korea → China → Global distribution
+`,
+
+    earbuds: `
+2. Wireless Earbuds
+
+Labor
+- Production relocated to Vietnam and China → sustained low-wage dependency
+
+Environment
+- Repairability score: 0/10 (battery glued inside)
+- Short lifespan (~2 years) → fully disposable
+- Lithium-ion + adhesives → nearly unrecyclable
+
+Capital
+- Extremely high-margin accessory; higher ROI than smartphones
+
+Supply Chain
+Vietnam/China → Consumers → Landfill
+`,
+
+    water: `
+3. Bottled Water
+
+Labor
+- Labor mostly in trucking/logistics
+
+Environment
+- Plastic bottle takes 450–500 years to decompose
+- 1L bottled water requires 3L water + 0.25L oil
+- Opening the bottle releases microplastics
+
+Capital
+- Water source cost ≈ $0
+- Consumers pay for bottle + brand
+- Corporations secure exclusive groundwater rights
+
+Supply Chain
+Aquifer → Plastic factory → Retail → Oceans/Landfill
+`,
+
+    lipbalm: `
+4. Lip Balm / Cosmetics
+
+Labor
+- Mica mining uses child labor (ages 5–10)
+- Palm oil plantations tied to forced labor
+
+Environment
+- Multi-layer plastic packaging is non-recyclable
+- Palm oil drives tropical deforestation & habitat loss
+
+Capital
+- Controlled by multinational beauty conglomerates
+
+Supply Chain
+India/SE Asia → US/Europe → Consumers
+`,
+
+    coffee: `
+5. Coffee (Iced Latte archetype)
+
+Labor
+- Farmers earn $0.02–$0.05 from a $4 latte (~1%)
+- 80%+ of farmers live near/below poverty line
+
+Environment
+- One cup = 130–140L of water
+- Disposable cups/lids contribute to waste
+
+Capital
+- Prices controlled by New York/London markets
+- Farmers lack pricing power
+
+Supply Chain
+Ethiopia/Colombia → EU/US → Consumers
+`,
+
+    candle: `
+6. Scented Candle
+
+Labor
+- Manufactured in poorly ventilated factories in China/SE Asia
+
+Environment
+- Paraffin wax = petroleum byproduct
+- Burning releases benzene/toluene
+- Impacts indoor air quality
+
+Capital
+- Low-cost, high-margin product marketed as “wellness”
+
+Supply Chain
+Oil refinery → Candle factory → Retail
+`,
+
+    tshirt: `
+7. Cotton T-Shirt
+
+Labor
+- Bangladesh garment workers earn $80–$95/month
+- Rana Plaza collapse (2013): 1,134 deaths
+
+Environment
+- One shirt = 2,700L of water
+- Fashion = 20% of global industrial wastewater
+
+Capital
+- Extreme CEO-worker wealth gap
+- Unsold clothing often shredded/incinerated
+
+Supply Chain
+USA/India → China/Vietnam → Bangladesh → Retail → Global textile waste sites
+`
+};
+
+
+// --------------------------
+// 2) Auto-detect item parameter
+// --------------------------
+const params = new URLSearchParams(window.location.search);
+
+// most likely param names
+let item =
+    params.get("item") ||
+    params.get("product") ||
+    params.get("name") ||
+    params.get("id");
+
+// if URL is like ?iphone
+if (!item) {
+    for (const [key] of params) {
+        if (DATA[key]) item = key;
+    }
+}
+
+// fallback
+if (!item) item = "unknown";
+
+
+// --------------------------
+// 3) Insert matched data
+// --------------------------
+const receiptBox = document.getElementById("content");
+
+if (DATA[item]) {
+    receiptBox.textContent = DATA[item];
+} else {
+    receiptBox.textContent = "No data available for this item.";
+}
+
+
+// --------------------------
+// 4) Printer sound
+// --------------------------
 window.onload = () => {
     const sound = document.getElementById("printSound");
     sound.currentTime = 0;
     sound.play();
 };
 
-// 🧾 Screenshot + auto download
-document.getElementById("downloadBtn").addEventListener("click", function () {
 
-    // Play printing sound
+// --------------------------
+// 5) Screenshot + download
+// --------------------------
+document.getElementById("downloadBtn").addEventListener("click", function () {
     const sound = document.getElementById("printSound");
     sound.currentTime = 0;
     sound.play();
