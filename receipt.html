@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Receipt</title>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<audio id="printSound" src="printer.mp3" preload="auto"></audio>
 
 <style>
     body {
@@ -15,41 +18,46 @@
     }
 
     #receipt-wrapper {
-        width: 480px;
+        width: 420px;
         background: white;
-        padding: 40px 32px;
+        padding: 30px 25px;
         border-radius: 12px;
-        box-shadow: 0 6px 40px rgba(0,0,0,0.1);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
         border: 1px solid #eee;
+        animation: printDown 1.5s ease-out forwards;
     }
 
-    h2 {
-        font-size: 24px;
-        font-weight: 700;
-        margin-bottom: 20px;
+    @keyframes printDown {
+        0% { transform: translateY(-80px); opacity: 0; }
+        100% { transform: translateY(0); opacity: 1; }
     }
 
-    .line {
-        border-bottom: 1px dashed #ccc;
-        margin: 18px 0;
+    h2 { font-size: 22px; margin-bottom: 20px; font-weight: 700; }
+    .line { border-bottom: 1px dashed #ccc; margin: 20px 0; }
+
+    .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-top: 14px;
+        margin-bottom: 6px;
     }
 
-    #receiptContent {
-        white-space: pre-line;
-        font-size: 15px;
-        line-height: 1.7;
-        margin-top: 10px;
+    .section-text {
+        font-size: 14px;
+        line-height: 1.55;
+        margin-bottom: 12px;
     }
 
     #downloadBtn {
-        margin-top: 30px;
+        margin-top: 22px;
         width: 100%;
-        padding: 16px 0;
+        padding: 14px 0;
         border: none;
         border-radius: 6px;
         background: black;
         color: white;
         font-size: 15px;
+        font-weight: 600;
         cursor: pointer;
     }
 </style>
@@ -58,129 +66,76 @@
 <body>
 
 <div id="receipt-wrapper">
-
     <h2>Receipt</h2>
     <div class="line"></div>
 
-    <div id="receiptContent">loading…</div>
+    <div id="content"></div>
 
     <div class="line"></div>
-
     <button id="downloadBtn">Download receipt</button>
 </div>
 
 <script>
+const data = {
+    iphone: `
+        <div class="section-title">Labor</div>
+        <div class="section-text">
+        - Assembly worker wage: $2.50–$3.00/hour<br>
+        - Peak season: 60+ hours/week, forced overtime common<br>
+        - Severe labor-rights issues (suicide-prevention nets)
+        </div>
+
+        <div class="section-title">Environment</div>
+        <div class="section-text">
+        - 80% of emissions from manufacturing<br>
+        - Designed-to-fail repairs (e-waste)<br>
+        - Cobalt mining linked to child labor (DR Congo)
+        </div>
+
+        <div class="section-title">Capital</div>
+        <div class="section-text">
+        - CEO-to-worker ratio: 1,447:1<br>
+        - Only 1–2% goes to assembly labor<br>
+        - 50–60% corporate margin + licensing
+        </div>
+
+        <div class="section-title">Supply Chain</div>
+        <div class="section-text">
+        California → DR Congo → Taiwan/Korea → China → Global
+        </div>
+    `,
+
+    // 다른 아이템도 여기 동일 구조로 입력하면 됨
+};
+
 const params = new URLSearchParams(window.location.search);
 const item = params.get("item");
 
-const data = {
-iphone: `Labor
-- Assembly worker wage: $2.50–$3.00/hour
-- Peak season: 60+ hours/week, forced overtime common
-- History of severe labor-rights issues (e.g., suicide-prevention nets installed at factories)
+document.getElementById("content").innerHTML =
+    data[item] ? data[item] : "<div>No data available for this item.</div>";
 
-Environment
-- 80% of total carbon emissions occur during manufacturing
-- Designed-to-fail repairs → contributes to e-waste crisis
-- Cobalt mining linked to child labor and soil contamination (DR Congo)
-
-Capital
-- CEO-to-worker pay ratio: 1,447:1
-- Only 1–2% of the phone’s price goes to assembly labor
-- 50–60% of profit flows to corporate margin + licensing
-
-Supply Chain
-California (design) → DR Congo (mining) → Taiwan/Korea (components) → China (assembly) → Global distribution`,
-
-earbuds: `Labor
-- Low-wage manufacturing in Vietnam/China
-
-Environment
-- Repairability score: 0/10
-- Disposable battery → device becomes waste
-- Lithium-ion + adhesives = unrecyclable
-
-Capital
-- Extremely high-margin accessory
-
-Supply Chain
-Vietnam/China → Consumer → Landfill`,
-
-waterbottle: `Labor
-- Automated production; long-haul trucking labor
-
-Environment
-- Plastic takes 450–500 years to decompose
-- 1L bottled water requires 3L water + 0.25L oil
-- Microplastic released when opened
-
-Capital
-- Water is nearly free; consumers pay for bottle + branding
-
-Supply Chain
-Aquifer → Plastic plant → Retail → Ocean garbage patches`,
-
-lipbalm: `Labor
-- Mica mining by children (ages 5–10)
-- Palm oil linked to forced labor
-
-Environment
-- Multilayer plastic → unrecyclable
-- Palm oil drives deforestation
-
-Capital
-- Beauty controlled by mega corporations
-
-Supply Chain
-India/SE Asia → US/Europe → Consumers`,
-
-coffee: `Labor
-- $4 latte gives farmers $0.02–$0.05
-- 80% live near/below poverty
-
-Environment
-- 130–140L of water per cup
-- Waste from cups/lids
-
-Capital
-- Global prices controlled by finance markets
-
-Supply Chain
-Ethiopia/Colombia → EU/US → Consumers`,
-
-candle: `Labor
-- Poor ventilation factories in Asia
-
-Environment
-- Paraffin = petroleum byproduct
-- Emits benzene/toluene indoors
-
-Capital
-- Low-cost, high-margin “wellness” item
-
-Supply Chain
-Oil refinery → Factory → Retail`,
-
-tshirt: `Labor
-- Bangladesh workers earn $80–$95/month
-- Rana Plaza collapse: 1,134 deaths
-
-Environment
-- 2,700L water per shirt
-- Fashion = 20% global wastewater
-
-Capital
-- Fast fashion: CEO billionaires vs minimum-wage workers
-- Unsold stock often destroyed
-
-Supply Chain
-USA/India → China/Vietnam → Bangladesh → Retail → Waste sites`
+window.onload = () => {
+    const s = document.getElementById("printSound");
+    s.currentTime = 0;
+    s.play();
 };
 
-document.getElementById("receiptContent").innerText =
-    data[item] || "No data available for this item.";
+document.getElementById("downloadBtn").addEventListener("click", () => {
+    const s = document.getElementById("printSound");
+    s.currentTime = 0;
+    s.play();
+
+    setTimeout(() => {
+        html2canvas(document.getElementById("receipt-wrapper"), { scale: 2 })
+            .then(canvas => {
+                const link = document.createElement("a");
+                link.download = "receipt.png";
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            });
+    }, 500);
+});
 </script>
 
 </body>
 </html>
-
