@@ -1,304 +1,227 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>Interactive Receipt – Final Cut / Deleted Scenes</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #111;
-      color: #f5f5f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+<meta charset="UTF-8" />
+<title>3D Fold Receipt Interaction</title>
 
-    .app {
-      width: 360px;
-      max-width: 90vw;
-      background: radial-gradient(circle at top, #333 0, #111 60%);
-      border-radius: 24px;
-      padding: 16px 16px 20px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-      position: relative;
-      overflow: hidden;
-    }
+<style>
+  body {
+    margin: 0;
+    background: #0f0f0f;
+    font-family: -apple-system, BlinkMacSystemFont, BlinkMacSystemFont, sans-serif;
+    color: white;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
-    .title {
-      font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      opacity: 0.7;
-      margin-bottom: 8px;
-    }
+  .stage {
+    perspective: 1400px;
+    display: flex;
+    gap: 20px;
+  }
 
-    .subtitle {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 16px;
-    }
+  /* ===== RECEIPT FOLD ===== */
 
-    .hint {
-      font-size: 11px;
-      opacity: 0.65;
-      margin-bottom: 10px;
-    }
+  .receipt-container {
+    width: 240px;
+    transform-style: preserve-3d;
+    position: relative;
+  }
 
-    .receipt-wrapper {
-      position: relative;
-      background: #000;
-      border-radius: 16px;
-      overflow: hidden;
-    }
+  .receipt {
+    width: 100%;
+    transform-origin: top;
+    transform: rotateX(75deg);  /* 처음에 강하게 접혀있음 */
+    transition: transform 0.1s linear;
+    user-select: none;
+    touch-action: none;
+    box-shadow: 0px 40px 50px rgba(0,0,0,0.6);
+  }
 
-    .receipt-mask {
-      position: relative;
-      overflow: hidden;
-      /* 높이가 JS로 바뀜 */
-      height: 150px;
-      transition: height 0.08s ease-out;
-      cursor: grab;
-      touch-action: none; /* 터치 스크롤 방지 */
-    }
+  .grab-zone {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 50px;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(2px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: grab;
+  }
 
-    .receipt-mask.dragging {
-      cursor: grabbing;
-    }
+  .grab-zone:active {
+    cursor: grabbing;
+  }
 
-    .receipt-img {
-      display: block;
-      width: 100%;
-      user-select: none;
-      pointer-events: none;
-    }
+  .grab-handle {
+    width: 60px;
+    height: 6px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 3px;
+  }
 
-    .drag-handle {
-      position: absolute;
-      bottom: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60px;
-      height: 6px;
-      background: rgba(0,0,0,0.55);
-      border-radius: 999px;
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
-    }
+  /* ===== SIDE PANEL ===== */
 
-    .deleted-scenes {
-      padding: 12px 14px 14px;
-      font-size: 11px;
-      line-height: 1.5;
-      background: #050505;
-      border-top: 1px solid rgba(255,255,255,0.04);
-    }
+  .info-panel {
+    width: 260px;
+    height: 460px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 16px;
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 10px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.16);
-      opacity: 0.8;
-      margin-bottom: 8px;
-    }
+  .info-panel.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
 
-    .badge-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: #ff6363;
-    }
+  .info-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
 
-    .scene {
-      margin-bottom: 10px;
-      padding: 6px 8px;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.02);
-      border: 1px solid rgba(255,255,255,0.07);
-      opacity: 0;
-      transform: translateY(6px);
-      transition: opacity 0.2s ease-out, transform 0.2s ease-out;
-    }
-    .scene.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  .info-block {
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.09);
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
 
-    .scene-title {
-      font-size: 11px;
-      font-weight: 600;
-      margin-bottom: 2px;
-    }
-    .scene-body {
-      opacity: 0.8;
-    }
+  .info-block.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
 
-    .scene-tagline {
-      font-size: 10px;
-      opacity: 0.6;
-      margin-top: 2px;
-    }
+  .block-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
 
-    .footer-note {
-      margin-top: 6px;
-      font-size: 10px;
-      opacity: 0.5;
-      border-top: 1px dashed rgba(255,255,255,0.12);
-      padding-top: 6px;
-    }
-  </style>
+  .block-body {
+    opacity: 0.75;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+</style>
 </head>
+
 <body>
-  <div class="app">
-    <div class="title">INTERACTIVE RECEIPT</div>
-    <div class="subtitle">Final Cut / Deleted Scenes</div>
-    <div class="hint">영수증을 위로 드래그해서 숨겨진 정보를 펼쳐보세요.</div>
+<div class="stage">
 
-    <div class="receipt-wrapper">
-      <div class="receipt-mask" id="receiptMask">
-        <!-- 👉 여기 src에 네가 디자인한 PNG/JPG 경로 넣으면 됨 -->
-        <img src="receipt.png" alt="Receipt" class="receipt-img" />
-        <div class="drag-handle"></div>
+  <!-- LEFT: RECEIPT -->
+  <div class="receipt-container">
+    <img id="receipt" src="receipt.png" class="receipt" />
+
+    <div id="grabZone" class="grab-zone">
+      <div class="grab-handle"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: INFO -->
+  <div id="infoPanel" class="info-panel">
+    <div class="info-title">삭제된 장면 (Deleted Scenes)</div>
+
+    <div class="info-block" data-threshold="0.25">
+      <div class="block-title">1. 재료 독성 (Material Health)</div>
+      <div class="block-body">
+        독성 물질, 염료, 접착제, 난연제 등은 영수증에 적히지 않는다.
+        그러나 제품의 실질적 위험성은 이 층위에 있다.
       </div>
+    </div>
 
-      <div class="deleted-scenes" id="deletedScenes">
-        <div class="badge">
-          <div class="badge-dot"></div>
-          DELETED SCENES / C2C VIEW
-        </div>
+    <div class="info-block" data-threshold="0.45">
+      <div class="block-title">2. 노동 시간 & 사회적 비용</div>
+      <div class="block-body">
+        생산 과정에서 소요된 노동자의 시간·임금·조건은 모두 삭제된 정보다.
+      </div>
+    </div>
 
-        <div class="scene" data-threshold="0.2">
-          <div class="scene-title">1. 재료 건강성 (Material Health)</div>
-          <div class="scene-body">
-            &mdash; 이 영수증에는 인쇄되지 않은 정보:<br/>
-            독성 화학물질, 염료, 접착제, 난연제, 중금속의 존재 여부.<br/>
-            C2C 관점에서 이 제품은 인체와 생태계에 얼마나 안전한가?
-          </div>
-          <div class="scene-tagline">우리는 가격을 보지만, 재료의 독성은 보지 못한다.</div>
-        </div>
+    <div class="info-block" data-threshold="0.65">
+      <div class="block-title">3. 탄소배출 / 에너지</div>
+      <div class="block-body">
+        제품의 생산·운송·사용·폐기에서 발생하는 탄소발자국은
+        결제 금액에 포함되지 않는다.
+      </div>
+    </div>
 
-        <div class="scene" data-threshold="0.45">
-          <div class="scene-title">2. 노동 시간 & 사회적 비용</div>
-          <div class="scene-body">
-            &mdash; 이 한 줄 뒤에 숨은 것:<br/>
-            채굴·재배·재봉·조립 라인에서 소요된 노동 시간, 임금, 안전장비,  
-            야근, 그리고 보이지 않는 노동자의 얼굴들.
-          </div>
-          <div class="scene-tagline">우리는 총액을 지불하지만, 시간의 대가를 보지 못한다.</div>
-        </div>
-
-        <div class="scene" data-threshold="0.7">
-          <div class="scene-title">3. 탄소배출·에너지</div>
-          <div class="scene-body">
-            &mdash; 생산·운송·사용·폐기까지 이어지는 에너지 소비와 온실가스 배출.<br/>
-            커피 1샷, 티셔츠 1장, 스마트폰 1대가 남긴 기후 발자국은 얼마인가?
-          </div>
-          <div class="scene-tagline">영수증에는 숫자만 찍히지만, 대기에는 CO₂가 남는다.</div>
-        </div>
-
-        <div class="scene" data-threshold="0.9">
-          <div class="scene-title">4. 보이지 않는 비용들</div>
-          <div class="scene-body">
-            수질 오염, 토양 황폐화, 생물다양성 손실, 전자폐기물,  
-            그리고 미래 세대가 떠안게 될 복구 비용까지.<br/>
-            이 모든 것은 영수증에서 잘려나간 '삭제된 장면'이다.
-          </div>
-          <div class="scene-tagline">우리가 손에 쥐는 것은 Final Cut, 지워진 것은 현실이다.</div>
-        </div>
-
-        <div class="footer-note">
-          드래그를 끝까지 올릴수록 더 많은 '삭제된 장면'이 드러납니다.  
-          이 인터페이스는 소비를 하나의 편집 행위로 바라보게 만드는 실험입니다.
-        </div>
+    <div class="info-block" data-threshold="0.8">
+      <div class="block-title">4. 보이지 않는 비용들</div>
+      <div class="block-body">
+        수질 오염, 토양 파괴, 생태계 손실, 전자폐기물…
+        모두 영수증에서 '편집된' 장면들이다.
       </div>
     </div>
   </div>
 
-  <script>
-    (function() {
-      const mask = document.getElementById('receiptMask');
-      const scenes = Array.from(document.querySelectorAll('.scene'));
+</div>
 
-      const MIN_HEIGHT = 140;   // 처음 접힌 높이
-      const MAX_HEIGHT = 420;   // 완전히 펼쳐졌을 때 높이
-      let currentHeight = MIN_HEIGHT;
-      let isDragging = false;
-      let startY = 0;
-      let startHeight = currentHeight;
+<script>
+  const receipt = document.getElementById("receipt");
+  const grab = document.getElementById("grabZone");
+  const infoPanel = document.getElementById("infoPanel");
+  const blocks = [...document.querySelectorAll(".info-block")];
 
-      function clamp(value, min, max) {
-        return Math.min(max, Math.max(min, value));
-      }
+  let isDragging = false;
+  let startY = 0;
+  let fold = 75;  // 75deg = 많이 접힘. 0deg = 완전히 펼침.
 
-      function updateScenes() {
-        const progress = (currentHeight - MIN_HEIGHT) / (MAX_HEIGHT - MIN_HEIGHT);
-        scenes.forEach(scene => {
-          const threshold = parseFloat(scene.dataset.threshold || "0");
-          if (progress >= threshold) {
-            scene.classList.add('visible');
-          } else {
-            scene.classList.remove('visible');
-          }
-        });
-      }
+  function dragStart(clientY) {
+    isDragging = true;
+    startY = clientY;
+  }
 
-      function onPointerDown(clientY) {
-        isDragging = true;
-        startY = clientY;
-        startHeight = currentHeight;
-        mask.classList.add('dragging');
-      }
+  function dragMove(clientY) {
+    if (!isDragging) return;
+    const dy = clientY - startY;
 
-      function onPointerMove(clientY) {
-        if (!isDragging) return;
-        const delta = startY - clientY; // 위로 드래그 = 양수
-        const nextHeight = clamp(startHeight + delta * 1.2, MIN_HEIGHT, MAX_HEIGHT);
-        currentHeight = nextHeight;
-        mask.style.height = currentHeight + 'px';
-        updateScenes();
-      }
+    fold -= dy * 0.15;          // 드래그 양에 따라 각도 감소
+    fold = Math.max(0, Math.min(75, fold));   // 0~75 제한
+    receipt.style.transform = `rotateX(${fold}deg)`;
 
-      function onPointerUp() {
-        if (!isDragging) return;
-        isDragging = false;
-        mask.classList.remove('dragging');
-      }
+    const progress = 1 - (fold / 75);  // 0.0 ~ 1.0
 
-      // Mouse events
-      mask.addEventListener('mousedown', e => {
-        e.preventDefault();
-        onPointerDown(e.clientY);
-      });
-      window.addEventListener('mousemove', e => {
-        onPointerMove(e.clientY);
-      });
-      window.addEventListener('mouseup', () => {
-        onPointerUp();
-      });
+    // 패널 등장
+    if (progress > 0.15) infoPanel.classList.add("visible");
+    else infoPanel.classList.remove("visible");
 
-      // Touch events
-      mask.addEventListener('touchstart', e => {
-        const t = e.touches[0];
-        onPointerDown(t.clientY);
-      }, { passive: true });
-      window.addEventListener('touchmove', e => {
-        const t = e.touches[0];
-        onPointerMove(t.clientY);
-      }, { passive: true });
-      window.addEventListener('touchend', () => {
-        onPointerUp();
-      });
+    blocks.forEach(block => {
+      const th = parseFloat(block.dataset.threshold);
+      if (progress >= th) block.classList.add("visible");
+      else block.classList.remove("visible");
+    });
 
-      // 초기 상태 반영
-      updateScenes();
-    })();
-  </script>
+    startY = clientY; // 자연스러운 follow drag
+  }
+
+  function dragEnd() {
+    isDragging = false;
+  }
+
+  /* Mouse */
+  grab.addEventListener("mousedown", e => dragStart(e.clientY));
+  window.addEventListener("mousemove", e => dragMove(e.clientY));
+  window.addEventListener("mouseup", dragEnd);
+
+  /* Touch */
+  grab.addEventListener("touchstart", e => dragStart(e.touches[0].clientY));
+  window.addEventListener("touchmove", e => dragMove(e.touches[0].clientY));
+  window.addEventListener("touchend", dragEnd);
+</script>
+
 </body>
 </html>
