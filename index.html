@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<title>3D Fold Receipt Interaction</title>
+<title>3D Fold Receipt Interaction – Multi Receipt</title>
 
 <style>
   body {
@@ -23,50 +23,24 @@
     gap: 20px;
   }
 
-  /* ===== RECEIPT FOLD ===== */
-
   .receipt-container {
     width: 240px;
     transform-style: preserve-3d;
     position: relative;
+    cursor: pointer;
   }
 
   .receipt {
     width: 100%;
     transform-origin: top;
-    transform: rotateX(75deg);  /* 처음에 강하게 접혀있음 */
-    transition: transform 0.1s linear;
+    transform: rotateX(75deg);
+    transition: transform 0.15s ease-out;
     user-select: none;
     touch-action: none;
     box-shadow: 0px 40px 50px rgba(0,0,0,0.6);
   }
 
-  .grab-zone {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 50px;
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(2px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: grab;
-  }
-
-  .grab-zone:active {
-    cursor: grabbing;
-  }
-
-  .grab-handle {
-    width: 60px;
-    height: 6px;
-    background: rgba(255,255,255,0.4);
-    border-radius: 3px;
-  }
-
-  /* ===== SIDE PANEL ===== */
-
+  /* Side Panel */
   .info-panel {
     width: 260px;
     height: 460px;
@@ -79,18 +53,15 @@
     transform: translateY(40px);
     transition: opacity 0.4s ease, transform 0.4s ease;
   }
-
   .info-panel.visible {
     opacity: 1;
     transform: translateY(0);
   }
-
   .info-title {
     font-size: 17px;
     font-weight: 700;
     margin-bottom: 14px;
   }
-
   .info-block {
     margin-bottom: 18px;
     padding-bottom: 12px;
@@ -99,24 +70,20 @@
     transform: translateX(-10px);
     transition: opacity 0.3s ease, transform 0.3s ease;
   }
-
   .info-block.visible {
     opacity: 1;
     transform: translateX(0);
   }
-
   .block-title {
     font-size: 13px;
     font-weight: 700;
     margin-bottom: 6px;
   }
-
   .block-body {
     opacity: 0.75;
     font-size: 12px;
     line-height: 1.5;
   }
-
 </style>
 </head>
 
@@ -124,15 +91,11 @@
 <div class="stage">
 
   <!-- LEFT: RECEIPT -->
-  <div class="receipt-container">
-    <img id="receipt" src="receipt.png" class="receipt" />
-
-    <div id="grabZone" class="grab-zone">
-      <div class="grab-handle"></div>
-    </div>
+  <div class="receipt-container" id="receiptContainer">
+    <img id="receipt" src="receipt1.png" class="receipt" />
   </div>
 
-  <!-- RIGHT: INFO -->
+  <!-- RIGHT: INFO PANEL -->
   <div id="infoPanel" class="info-panel">
     <div class="info-title">삭제된 장면 (Deleted Scenes)</div>
 
@@ -140,30 +103,27 @@
       <div class="block-title">1. 재료 독성 (Material Health)</div>
       <div class="block-body">
         독성 물질, 염료, 접착제, 난연제 등은 영수증에 적히지 않는다.
-        그러나 제품의 실질적 위험성은 이 층위에 있다.
       </div>
     </div>
 
     <div class="info-block" data-threshold="0.45">
       <div class="block-title">2. 노동 시간 & 사회적 비용</div>
       <div class="block-body">
-        생산 과정에서 소요된 노동자의 시간·임금·조건은 모두 삭제된 정보다.
+        생산 과정에서 발생한 노동자 비용과 조건들은 가격표 뒤에 숨겨져 있다.
       </div>
     </div>
 
     <div class="info-block" data-threshold="0.65">
       <div class="block-title">3. 탄소배출 / 에너지</div>
       <div class="block-body">
-        제품의 생산·운송·사용·폐기에서 발생하는 탄소발자국은
-        결제 금액에 포함되지 않는다.
+        실제 환경 비용은 소비자가 결제하는 가격에 포함되지 않는다.
       </div>
     </div>
 
     <div class="info-block" data-threshold="0.8">
       <div class="block-title">4. 보이지 않는 비용들</div>
       <div class="block-body">
-        수질 오염, 토양 파괴, 생태계 손실, 전자폐기물…
-        모두 영수증에서 '편집된' 장면들이다.
+        수질 오염·생태계 파괴 등은 언제나 '삭제된 장면'으로 남는다.
       </div>
     </div>
   </div>
@@ -171,31 +131,49 @@
 </div>
 
 <script>
+  /* Multiple receipt images */
+  const receiptImages = [
+    "receipt1.png",
+    "receipt2.png",
+    "receipt3.png",
+    "receipt4.png"
+  ];
+
+  let currentIndex = 0;
+
   const receipt = document.getElementById("receipt");
-  const grab = document.getElementById("grabZone");
+  const receiptContainer = document.getElementById("receiptContainer");
   const infoPanel = document.getElementById("infoPanel");
   const blocks = [...document.querySelectorAll(".info-block")];
 
-  let isDragging = false;
-  let startY = 0;
-  let fold = 75;  // 75deg = 많이 접힘. 0deg = 완전히 펼침.
+  let fold = 75;
+  let targetFold = 75;
+  let opened = false;
 
-  function dragStart(clientY) {
-    isDragging = true;
-    startY = clientY;
-  }
+  /* CLICK = unfold/fold + next receipt */
+  receiptContainer.addEventListener("click", () => {
 
-  function dragMove(clientY) {
-    if (!isDragging) return;
-    const dy = clientY - startY;
+    // 1. 토글 펼침
+    opened = !opened;
+    targetFold = opened ? 0 : 75;
 
-    fold -= dy * 0.15;          // 드래그 양에 따라 각도 감소
-    fold = Math.max(0, Math.min(75, fold));   // 0~75 제한
+    // 2. 펼침이 시작될 때마다 다음 영수증으로 전환
+    if (!opened) {
+      // 접힌 후 전환
+      currentIndex = (currentIndex + 1) % receiptImages.length;
+      setTimeout(() => {
+        receipt.src = receiptImages[currentIndex];
+      }, 150);
+    }
+  });
+
+  /* Animation loop */
+  function animate() {
+    fold += (targetFold - fold) * 0.08;
     receipt.style.transform = `rotateX(${fold}deg)`;
 
-    const progress = 1 - (fold / 75);  // 0.0 ~ 1.0
+    const progress = 1 - (fold / 75);
 
-    // 패널 등장
     if (progress > 0.15) infoPanel.classList.add("visible");
     else infoPanel.classList.remove("visible");
 
@@ -205,23 +183,12 @@
       else block.classList.remove("visible");
     });
 
-    startY = clientY; // 자연스러운 follow drag
+    requestAnimationFrame(animate);
   }
 
-  function dragEnd() {
-    isDragging = false;
-  }
-
-  /* Mouse */
-  grab.addEventListener("mousedown", e => dragStart(e.clientY));
-  window.addEventListener("mousemove", e => dragMove(e.clientY));
-  window.addEventListener("mouseup", dragEnd);
-
-  /* Touch */
-  grab.addEventListener("touchstart", e => dragStart(e.touches[0].clientY));
-  window.addEventListener("touchmove", e => dragMove(e.touches[0].clientY));
-  window.addEventListener("touchend", dragEnd);
+  animate();
 </script>
 
 </body>
 </html>
+
