@@ -1,194 +1,203 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<title>3D Fold Receipt Interaction – Multi Receipt</title>
-
+<meta charset="UTF-8">
+<title>Receipt Universe</title>
 <style>
   body {
     margin: 0;
-    background: #0f0f0f;
-    font-family: -apple-system, BlinkMacSystemFont, BlinkMacSystemFont, sans-serif;
-    color: white;
-    height: 100vh;
+    background: #050505;
     overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    font-family: -apple-system, sans-serif;
+    color: white;
   }
 
-  .stage {
-    perspective: 1400px;
-    display: flex;
-    gap: 20px;
+  /* 3D SPACE */
+  .space {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    perspective: 1600px;
   }
 
-  .receipt-container {
-    width: 240px;
+  /* FLOATING OBJECTS */
+  .float-obj {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    opacity: 0.35;
+    animation: float 6s ease-in-out infinite alternate;
+    filter: blur(3px);
+  }
+
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    100% { transform: translateY(-30px); }
+  }
+
+  /* RECEIPT OBJECT (3D) */
+  .receipt-orbit {
+    position: absolute;
+    left: 50%;
+    top: 50%;
     transform-style: preserve-3d;
-    position: relative;
+    transform: translate(-50%, -50%) rotateX(10deg);
     cursor: pointer;
   }
 
   .receipt {
-    width: 100%;
+    width: 260px;
     transform-origin: top;
     transform: rotateX(75deg);
-    transition: transform 0.15s ease-out;
-    user-select: none;
-    touch-action: none;
+    transition: transform 0.2s ease-out;
     box-shadow: 0px 40px 50px rgba(0,0,0,0.6);
   }
 
-  /* Side Panel */
-  .info-panel {
-    width: 260px;
-    height: 460px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 16px;
-    padding: 16px;
+  /* RIGHT DETAIL PANEL */
+  .detail-panel {
+    position: fixed;
+    right: -480px;
+    top: 0;
+    width: 480px;
+    height: 100vh;
+    background: #fefefe;
+    color: #000;
+    box-shadow: -8px 0 22px rgba(0,0,0,0.4);
+    padding: 26px;
     overflow-y: auto;
-    opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 0.4s ease, transform 0.4s ease;
+    transition: right 0.55s cubic-bezier(.4,0,.2,1);
+    z-index: 1000;
   }
-  .info-panel.visible {
-    opacity: 1;
-    transform: translateY(0);
+
+  .detail-panel.show {
+    right: 0;
   }
-  .info-title {
-    font-size: 17px;
-    font-weight: 700;
-    margin-bottom: 14px;
+
+  .detail-img {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 20px;
   }
-  .info-block {
-    margin-bottom: 18px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.09);
-    opacity: 0;
-    transform: translateX(-10px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
+
+  .detail-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 12px;
   }
-  .info-block.visible {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  .block-title {
-    font-size: 13px;
-    font-weight: 700;
-    margin-bottom: 6px;
-  }
-  .block-body {
-    opacity: 0.75;
-    font-size: 12px;
-    line-height: 1.5;
+
+  .close-btn {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    border: none;
+    background: none;
+    font-size: 30px;
+    cursor: pointer;
   }
 </style>
 </head>
 
 <body>
-<div class="stage">
+<div class="space">
 
-  <!-- LEFT: RECEIPT -->
-  <div class="receipt-container" id="receiptContainer">
+  <!-- Floating decorative objects (like Symbols of Happiness) -->
+  <img src="cloud1.png" class="float-obj" style="left:20%; top:25%;">
+  <img src="cloud2.png" class="float-obj" style="left:70%; top:40%;">
+  <img src="cloud3.png" class="float-obj" style="left:10%; top:60%;">
+  <img src="cloud4.png" class="float-obj" style="left:80%; top:10%;">
+
+  <!-- Center main object (Receipt) -->
+  <div id="receiptOrbit" class="receipt-orbit">
     <img id="receipt" src="receipt1.png" class="receipt" />
-  </div>
-
-  <!-- RIGHT: INFO PANEL -->
-  <div id="infoPanel" class="info-panel">
-    <div class="info-title">삭제된 장면 (Deleted Scenes)</div>
-
-    <div class="info-block" data-threshold="0.25">
-      <div class="block-title">1. 재료 독성 (Material Health)</div>
-      <div class="block-body">
-        독성 물질, 염료, 접착제, 난연제 등은 영수증에 적히지 않는다.
-      </div>
-    </div>
-
-    <div class="info-block" data-threshold="0.45">
-      <div class="block-title">2. 노동 시간 & 사회적 비용</div>
-      <div class="block-body">
-        생산 과정에서 발생한 노동자 비용과 조건들은 가격표 뒤에 숨겨져 있다.
-      </div>
-    </div>
-
-    <div class="info-block" data-threshold="0.65">
-      <div class="block-title">3. 탄소배출 / 에너지</div>
-      <div class="block-body">
-        실제 환경 비용은 소비자가 결제하는 가격에 포함되지 않는다.
-      </div>
-    </div>
-
-    <div class="info-block" data-threshold="0.8">
-      <div class="block-title">4. 보이지 않는 비용들</div>
-      <div class="block-body">
-        수질 오염·생태계 파괴 등은 언제나 '삭제된 장면'으로 남는다.
-      </div>
-    </div>
   </div>
 
 </div>
 
+<!-- DETAIL PANEL (Right) -->
+<div id="detailPanel" class="detail-panel">
+  <button id="closeDetail" class="close-btn">×</button>
+
+  <img id="detailImage" class="detail-img" src="" />
+  <div id="detailTitle" class="detail-title"></div>
+  <div id="detailText"></div>
+</div>
+
 <script>
-  /* Multiple receipt images */
-  const receiptImages = [
-    "receipt1.png",
-    "receipt2.png",
-    "receipt3.png",
-    "receipt4.png"
-  ];
+/* ==========================================
+   1) RECEIPT UNFOLD ANIMATION
+========================================== */
+const receipt = document.getElementById("receipt");
+const receiptOrbit = document.getElementById("receiptOrbit");
 
-  let currentIndex = 0;
+let fold = 75;
+let targetFold = 75;
+let opened = false;
 
-  const receipt = document.getElementById("receipt");
-  const receiptContainer = document.getElementById("receiptContainer");
-  const infoPanel = document.getElementById("infoPanel");
-  const blocks = [...document.querySelectorAll(".info-block")];
+/* Click = Toggle */
+receiptOrbit.addEventListener("click", () => {
+  opened = !opened;
+  targetFold = opened ? 0 : 75;
 
-  let fold = 75;
-  let targetFold = 75;
-  let opened = false;
-
-  /* CLICK = unfold/fold + next receipt */
-  receiptContainer.addEventListener("click", () => {
-
-    // 1. 토글 펼침
-    opened = !opened;
-    targetFold = opened ? 0 : 75;
-
-    // 2. 펼침이 시작될 때마다 다음 영수증으로 전환
-    if (!opened) {
-      // 접힌 후 전환
-      currentIndex = (currentIndex + 1) % receiptImages.length;
-      setTimeout(() => {
-        receipt.src = receiptImages[currentIndex];
-      }, 150);
-    }
-  });
-
-  /* Animation loop */
-  function animate() {
-    fold += (targetFold - fold) * 0.08;
-    receipt.style.transform = `rotateX(${fold}deg)`;
-
-    const progress = 1 - (fold / 75);
-
-    if (progress > 0.15) infoPanel.classList.add("visible");
-    else infoPanel.classList.remove("visible");
-
-    blocks.forEach(block => {
-      const th = parseFloat(block.dataset.threshold);
-      if (progress >= th) block.classList.add("visible");
-      else block.classList.remove("visible");
-    });
-
-    requestAnimationFrame(animate);
+  /* 완전히 펼쳐졌을 때 detail 열기 */
+  if (opened) {
+    setTimeout(() => showDetail(0), 500);
   }
+});
 
-  animate();
+/* Animation Loop */
+function animate() {
+  fold += (targetFold - fold) * 0.1;
+  receipt.style.transform = `rotateX(${fold}deg)`;
+  requestAnimationFrame(animate);
+}
+animate();
+
+/* ==========================================
+   2) DETAIL PANEL DATA (4 receipts)
+========================================== */
+
+const detailData = [
+  {
+    img: "receipt1.png",
+    title: "Capsule Coffee",
+    text: "재료 독성, 커피 농업, 알루미늄·PLA 캡슐… C2C 시점에서의 삭제된 장면들..."
+  },
+  {
+    img: "receipt2.png",
+    title: "Smartphone",
+    text: "희토류 채굴, 노동 환경, 공급망 복잡성…"
+  },
+  {
+    img: "receipt3.png",
+    title: "Fast Fashion",
+    text: "면 재배 물 사용량, 염색 공장 오염, 임금 착취…"
+  },
+  {
+    img: "receipt4.png",
+    title: "IKEA Low-cost Furniture",
+    text: "MDF, 포름알데히드, 저가 운송, 폐기 문제…"
+  }
+];
+
+/* ==========================================
+   3) DETAIL PANEL OPEN FUNCTION
+========================================== */
+function showDetail(i) {
+  document.getElementById("detailImage").src = detailData[i].img;
+  document.getElementById("detailTitle").textContent = detailData[i].title;
+  document.getElementById("detailText").textContent = detailData[i].text;
+
+  document.getElementById("detailPanel").classList.add("show");
+}
+
+/* Close */
+document.getElementById("closeDetail")
+  .addEventListener("click", () => {
+    document.getElementById("detailPanel").classList.remove("show");
+  });
 </script>
 
 </body>
 </html>
+
 
