@@ -36,11 +36,11 @@
         /* Mask box to hide receipt top - positioned above printer */
         .printer-mask {
             position: absolute;
-            top: -150px;
+            top: -100px;
             left: 50%;
             transform: translateX(-50%);
             width: 100%;
-            height: 200px;
+            height: 150px;
             background: #f5f5f5;
             z-index: 15;
         }
@@ -667,7 +667,7 @@
             if (cameraVideo.srcObject) {
                 cameraVideo.srcObject.getTracks().forEach(track => track.stop());
             }
-            window.location.href = 'unedited-cards.html';
+            window.location.href = 'index.html';
         });
 
         // ESC key to go back
@@ -676,7 +676,7 @@
                 if (cameraVideo.srcObject) {
                     cameraVideo.srcObject.getTracks().forEach(track => track.stop());
                 }
-                window.location.href = 'unedited-cards.html';
+                window.location.href = 'index.html';
             }
         });
     </script>
