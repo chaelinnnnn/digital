@@ -37,9 +37,9 @@
         .printer-machine {
             width: 90%;
             max-width: 700px;
-            height: 200px;
+            height: 80px;
             background: linear-gradient(180deg, #e8e8e8 0%, #d4d4d4 100%);
-            border-radius: 40px;
+            border-radius: 20px;
             box-shadow: 
                 0 20px 60px rgba(0, 0, 0, 0.15),
                 inset 0 -5px 15px rgba(0, 0, 0, 0.1),
@@ -54,12 +54,12 @@
         /* Printer Slot */
         .printer-slot {
             width: 70%;
-            height: 30px;
+            height: 12px;
             background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
-            border-radius: 15px;
+            border-radius: 6px;
             box-shadow: 
-                inset 0 4px 10px rgba(0, 0, 0, 0.8),
-                0 2px 5px rgba(0, 0, 0, 0.2);
+                inset 0 2px 6px rgba(0, 0, 0, 0.8),
+                0 1px 3px rgba(0, 0, 0, 0.2);
             position: relative;
             overflow: hidden;
         }
@@ -70,13 +70,14 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 8px;
+            height: 3px;
             background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%);
         }
 
         /* Receipt Paper Container */
         .receipt-paper {
             width: 280px;
+            min-height: 400px;
             position: relative;
             z-index: 1;
             transform: translateY(-100%);
@@ -278,7 +279,11 @@
 
         @media (max-width: 768px) {
             .printer-machine {
-                height: 150px;
+                height: 60px;
+            }
+
+            .printer-slot {
+                height: 10px;
             }
 
             .receipt-paper {
@@ -298,6 +303,113 @@
                 font-size: 12px;
                 padding: 10px 20px;
             }
+
+            .detail-panel {
+                width: 100%;
+                right: -100%;
+                top: auto;
+                bottom: 0;
+                height: 50vh;
+            }
+
+            .detail-panel.active {
+                right: 0;
+            }
+        }
+
+        /* Detail Panel */
+        .detail-panel {
+            position: fixed;
+            right: -500px;
+            top: 0;
+            width: 500px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 30px rgba(0, 0, 0, 0.2);
+            z-index: 102;
+            transition: right 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            padding: 40px;
+        }
+
+        .detail-panel.active {
+            right: 0;
+        }
+
+        .detail-header {
+            margin-bottom: 30px;
+        }
+
+        .detail-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 10px;
+        }
+
+        .detail-subtitle {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .detail-content {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .detail-section {
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 20px;
+        }
+
+        .detail-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .section-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .impact-stat {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f8f8f8;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .stat-icon {
+            font-size: 32px;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #000;
         }
     </style>
 </head>
@@ -349,6 +461,17 @@
         </div>
     </div>
 
+    <!-- Detail Panel -->
+    <div class="detail-panel" id="detailPanel">
+        <div class="detail-header">
+            <div class="detail-title" id="detailTitle">Product Details</div>
+            <div class="detail-subtitle" id="detailSubtitle">Environmental Impact</div>
+        </div>
+        <div class="detail-content" id="detailContent">
+            <!-- Content will be loaded dynamically -->
+        </div>
+    </div>
+
     <script>
         const receiptPaper = document.getElementById('receiptPaper');
         const receiptFolded = document.getElementById('receiptFolded');
@@ -361,33 +484,172 @@
         const handInstruction = document.getElementById('handInstruction');
         const unfoldProgress = document.getElementById('unfoldProgress');
         const progressFill = document.getElementById('progressFill');
+        const detailPanel = document.getElementById('detailPanel');
+        const detailTitle = document.getElementById('detailTitle');
+        const detailSubtitle = document.getElementById('detailSubtitle');
+        const detailContent = document.getElementById('detailContent');
 
         let hands;
         let camera;
         let unfoldPercentage = 0;
         let isPrinted = false;
+        let isPanelOpen = false;
+
+        // Detail content for each product
+        const detailData = {
+            furniture: {
+                title: 'Budget Furniture',
+                subtitle: 'The True Cost of Cheap Production',
+                sections: [
+                    {
+                        title: 'Materials',
+                        text: 'Engineered wood and strong adhesives often contain formaldehyde and other volatile organic compounds (VOCs) that off-gas for years.'
+                    },
+                    {
+                        title: 'Manufacturing Process',
+                        text: 'Low-wage, mass production in factories with minimal environmental controls. Energy-intensive processes with limited waste management.'
+                    },
+                    {
+                        title: 'Transportation',
+                        text: 'Large volume shipments create a high shipping burden. Furniture is often shipped partially assembled to reduce costs, increasing packaging waste.'
+                    },
+                    {
+                        title: 'Environmental Impact',
+                        icon: '🌍',
+                        stats: [
+                            { label: 'CO2 Emissions', value: '~150 kg' },
+                            { label: 'Lifespan', value: '2-5 years' }
+                        ]
+                    }
+                ]
+            },
+            earphones: {
+                title: 'Bluetooth Earphones',
+                subtitle: 'Hidden Environmental Costs of Electronics',
+                sections: [
+                    {
+                        title: 'Materials',
+                        text: 'Lithium-cobalt battery components require mining operations that devastate ecosystems and exploit workers in developing nations.'
+                    },
+                    {
+                        title: 'Manufacturing',
+                        text: 'Mass production in electronics OEM factories with complex global supply chains. High energy consumption and electronic waste generation.'
+                    },
+                    {
+                        title: 'Transportation',
+                        text: 'Global electronics supply chain with components sourced from multiple countries before final assembly and distribution.'
+                    },
+                    {
+                        title: 'Environmental Impact',
+                        icon: '⚡',
+                        stats: [
+                            { label: 'E-Waste Generated', value: '~50g per unit' },
+                            { label: 'Rare Earth Minerals', value: 'Non-renewable' }
+                        ]
+                    }
+                ]
+            },
+            coffee: {
+                title: 'Coffee Capsules',
+                subtitle: 'Single-Use Convenience at a High Price',
+                sections: [
+                    {
+                        title: 'Materials',
+                        text: 'Aluminum and plastic packaging create significant waste. Small packages shipped in large quantities increase the carbon footprint exponentially.'
+                    },
+                    {
+                        title: 'Manufacturing',
+                        text: 'High-pressure, high-heat processing requires significant energy input. Each capsule individually sealed with additional packaging layers.'
+                    },
+                    {
+                        title: 'Transportation',
+                        text: 'Small packages shipped in large quantities create inefficient logistics. Air freight common for maintaining freshness.'
+                    },
+                    {
+                        title: 'Environmental Impact',
+                        icon: '☕',
+                        stats: [
+                            { label: 'Waste per Cup', value: '~3g plastic/aluminum' },
+                            { label: 'Annual Global Waste', value: '50,000 tons' }
+                        ]
+                    }
+                ]
+            },
+            bottle: {
+                title: 'Disposable Water Bottle',
+                subtitle: 'The Plastic Pollution Crisis',
+                sections: [
+                    {
+                        title: 'Materials',
+                        text: 'PET (petroleum-based plastic) requires fossil fuels to produce. Takes 450+ years to decompose in landfills.'
+                    },
+                    {
+                        title: 'Manufacturing',
+                        text: 'Energy-intensive plastic molding process releases greenhouse gases. Water used in production often exceeds the bottle\'s contents.'
+                    },
+                    {
+                        title: 'Transportation',
+                        text: 'Heavy liquid cargo increases shipping load significantly. Transporting water globally is fundamentally inefficient.'
+                    },
+                    {
+                        title: 'Environmental Impact',
+                        icon: '💧',
+                        stats: [
+                            { label: 'Recycling Rate', value: 'Only 9%' },
+                            { label: 'Ocean Plastic', value: '8M tons/year' }
+                        ]
+                    }
+                ]
+            },
+            sweater: {
+                title: 'Budget-Brand Sweater',
+                subtitle: 'Fast Fashion\'s Environmental Footprint',
+                sections: [
+                    {
+                        title: 'Materials',
+                        text: 'Synthetic fibers (petroleum-based) shed microplastics with every wash. These particles enter waterways and accumulate in marine ecosystems.'
+                    },
+                    {
+                        title: 'Manufacturing',
+                        text: 'Low-cost, large-scale production facilities with minimal worker protections. Dyeing process uses toxic chemicals that pollute local water sources.'
+                    },
+                    {
+                        title: 'Transportation',
+                        text: 'Global fashion logistics network ships products multiple times before reaching consumers. Fast fashion model encourages frequent international shipping.'
+                    },
+                    {
+                        title: 'Environmental Impact',
+                        icon: '👕',
+                        stats: [
+                            { label: 'Water Usage', value: '2,700L per item' },
+                            { label: 'Microplastic Shedding', value: '700,000 fibers/wash' }
+                        ]
+                    }
+                ]
+            }
+        };
 
         // Receipt images mapping
         const receiptImages = {
             furniture: {
-                folded: '/mnt/user-data/uploads/furniture-folded.png',
-                unfolded: '/mnt/user-data/uploads/furniture-unfolded.png'
+                folded: 'furniture-folded.png',
+                unfolded: 'furniture-unfolded.png'
             },
             earphones: {
-                folded: '/mnt/user-data/uploads/earphones-folded.png',
-                unfolded: '/mnt/user-data/uploads/earphones-unfolded.png'
+                folded: 'earphones-folded.png',
+                unfolded: 'earphones-unfolded.png'
             },
             coffee: {
-                folded: '/mnt/user-data/uploads/coffee-folded.png',
-                unfolded: '/mnt/user-data/uploads/coffee-unfolded.png'
+                folded: 'coffee-folded.png',
+                unfolded: 'coffee-unfolded.png'
             },
             bottle: {
-                folded: '/mnt/user-data/uploads/bottle-folded.png',
-                unfolded: '/mnt/user-data/uploads/bottle-unfolded.png'
+                folded: 'bottle-folded.png',
+                unfolded: 'bottle-unfolded.png'
             },
             sweater: {
-                folded: '/mnt/user-data/uploads/sweater-folded.png',
-                unfolded: '/mnt/user-data/uploads/sweater-unfolded.png'
+                folded: 'sweater-folded.png',
+                unfolded: 'sweater-unfolded.png'
             }
         };
 
@@ -395,9 +657,71 @@
         const urlParams = new URLSearchParams(window.location.search);
         const receiptType = urlParams.get('type') || 'furniture';
 
+        console.log('Receipt type:', receiptType);
+        console.log('Folded image path:', receiptImages[receiptType].folded);
+        console.log('Unfolded image path:', receiptImages[receiptType].unfolded);
+
         // Set receipt images based on type
         receiptFolded.src = receiptImages[receiptType].folded;
         receiptUnfolded.src = receiptImages[receiptType].unfolded;
+
+        // Load detail content
+        function loadDetailContent() {
+            const data = detailData[receiptType];
+            detailTitle.textContent = data.title;
+            detailSubtitle.textContent = data.subtitle;
+            
+            detailContent.innerHTML = '';
+            data.sections.forEach(section => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'detail-section';
+                
+                const titleDiv = document.createElement('div');
+                titleDiv.className = 'section-title';
+                titleDiv.textContent = section.title;
+                sectionDiv.appendChild(titleDiv);
+                
+                if (section.text) {
+                    const textDiv = document.createElement('div');
+                    textDiv.className = 'section-text';
+                    textDiv.textContent = section.text;
+                    sectionDiv.appendChild(textDiv);
+                }
+                
+                if (section.stats) {
+                    section.stats.forEach(stat => {
+                        const statDiv = document.createElement('div');
+                        statDiv.className = 'impact-stat';
+                        statDiv.innerHTML = `
+                            <div class="stat-icon">${section.icon}</div>
+                            <div class="stat-content">
+                                <div class="stat-label">${stat.label}</div>
+                                <div class="stat-value">${stat.value}</div>
+                            </div>
+                        `;
+                        sectionDiv.appendChild(statDiv);
+                    });
+                }
+                
+                detailContent.appendChild(sectionDiv);
+            });
+        }
+
+        loadDetailContent();
+
+        // Add error handlers for images
+        receiptFolded.onerror = function() {
+            console.error('Failed to load folded receipt:', this.src);
+        };
+        receiptUnfolded.onerror = function() {
+            console.error('Failed to load unfolded receipt:', this.src);
+        };
+        receiptFolded.onload = function() {
+            console.log('Folded receipt loaded successfully');
+        };
+        receiptUnfolded.onload = function() {
+            console.log('Unfolded receipt loaded successfully');
+        };
 
         // Start printing animation on page load
         window.addEventListener('load', () => {
@@ -519,6 +843,15 @@
             // Cross-fade between folded and unfolded images
             receiptFolded.style.opacity = 1 - (percentage / 100);
             receiptUnfolded.style.opacity = percentage / 100;
+            
+            // Show detail panel when 90% unfolded
+            if (percentage >= 90 && !isPanelOpen) {
+                detailPanel.classList.add('active');
+                isPanelOpen = true;
+            } else if (percentage < 90 && isPanelOpen) {
+                detailPanel.classList.remove('active');
+                isPanelOpen = false;
+            }
         }
 
         // Helper functions for drawing hand landmarks
