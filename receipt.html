@@ -31,35 +31,37 @@
             flex-direction: column;
             align-items: center;
             gap: 0;
+            margin-bottom: 50px;
         }
 
         /* Printer Machine */
         .printer-machine {
             width: 90%;
-            max-width: 700px;
-            height: 80px;
+            max-width: 400px;
+            height: 50px;
             background: linear-gradient(180deg, #e8e8e8 0%, #d4d4d4 100%);
-            border-radius: 20px;
+            border-radius: 15px;
             box-shadow: 
-                0 20px 60px rgba(0, 0, 0, 0.15),
-                inset 0 -5px 15px rgba(0, 0, 0, 0.1),
-                inset 0 5px 15px rgba(255, 255, 255, 0.5);
+                0 10px 30px rgba(0, 0, 0, 0.15),
+                inset 0 -3px 10px rgba(0, 0, 0, 0.1),
+                inset 0 3px 10px rgba(255, 255, 255, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             z-index: 2;
+            margin-bottom: -5px;
         }
 
         /* Printer Slot */
         .printer-slot {
-            width: 70%;
-            height: 12px;
+            width: 75%;
+            height: 8px;
             background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
-            border-radius: 6px;
+            border-radius: 4px;
             box-shadow: 
-                inset 0 2px 6px rgba(0, 0, 0, 0.8),
-                0 1px 3px rgba(0, 0, 0, 0.2);
+                inset 0 2px 5px rgba(0, 0, 0, 0.8),
+                0 1px 2px rgba(0, 0, 0, 0.2);
             position: relative;
             overflow: hidden;
         }
@@ -70,7 +72,7 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
+            height: 2px;
             background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%);
         }
 
@@ -82,6 +84,7 @@
             z-index: 1;
             transform: translateY(-100%);
             opacity: 0;
+            margin-top: -8px;
         }
 
         .receipt-paper.printing {
@@ -279,15 +282,16 @@
 
         @media (max-width: 768px) {
             .printer-machine {
-                height: 60px;
+                max-width: 300px;
+                height: 40px;
             }
 
             .printer-slot {
-                height: 10px;
+                height: 6px;
             }
 
             .receipt-paper {
-                width: 240px;
+                width: 220px;
             }
 
             .back-button {
