@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Receipt Printer</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
     <style>
         * {
             margin: 0;
@@ -72,11 +74,9 @@
             background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%);
         }
 
-        /* Receipt Paper */
+        /* Receipt Paper Container */
         .receipt-paper {
             width: 280px;
-            background: white;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             position: relative;
             z-index: 1;
             transform: translateY(-100%);
@@ -97,9 +97,25 @@
             }
         }
 
-        .receipt-paper img {
+        /* Receipt Images */
+        .receipt-image {
             width: 100%;
             display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: opacity 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .receipt-folded {
+            opacity: 1;
+            z-index: 2;
+        }
+
+        .receipt-unfolded {
+            opacity: 0;
+            z-index: 1;
         }
 
         /* Back Button */
@@ -166,6 +182,100 @@
             50% { opacity: 0.3; }
         }
 
+        /* Camera and Hand Tracking */
+        .camera-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 240px;
+            height: 180px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            z-index: 101;
+            background: #000;
+        }
+
+        .camera-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        .camera-container canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: scaleX(-1);
+        }
+
+        .hand-instruction {
+            position: fixed;
+            bottom: 220px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            font-size: 13px;
+            color: #333;
+            max-width: 240px;
+            z-index: 101;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .hand-instruction.active {
+            opacity: 1;
+        }
+
+        .hand-instruction .title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .unfold-progress {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 101;
+        }
+
+        .unfold-progress.active {
+            opacity: 1;
+        }
+
+        .progress-bar {
+            width: 100px;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            transition: width 0.1s ease-out;
+            width: 0%;
+        }
+
         @media (max-width: 768px) {
             .printer-machine {
                 height: 150px;
@@ -205,6 +315,26 @@
         <span>Printing receipt...</span>
     </div>
 
+    <!-- Hand Tracking Instruction -->
+    <div class="hand-instruction" id="handInstruction">
+        <div class="title">✋ Use your hand to unfold</div>
+        <div>Move your hand down slowly to open the receipt</div>
+    </div>
+
+    <!-- Unfold Progress -->
+    <div class="unfold-progress" id="unfoldProgress">
+        <span>Unfolding</span>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </div>
+
+    <!-- Camera Feed -->
+    <div class="camera-container" id="cameraContainer" style="display: none;">
+        <video id="cameraVideo" autoplay playsinline></video>
+        <canvas id="cameraCanvas"></canvas>
+    </div>
+
     <!-- Printer Container -->
     <div class="printer-container">
         <!-- Printer Machine -->
@@ -214,19 +344,60 @@
 
         <!-- Receipt Paper -->
         <div class="receipt-paper" id="receiptPaper">
-            <img src="/mnt/user-data/uploads/136dd140932b3eaef3c8f043cdfc458b.jpg" alt="Receipt" id="receiptImage">
+            <img class="receipt-image receipt-folded" id="receiptFolded" alt="Folded Receipt">
+            <img class="receipt-image receipt-unfolded" id="receiptUnfolded" alt="Unfolded Receipt">
         </div>
     </div>
 
     <script>
         const receiptPaper = document.getElementById('receiptPaper');
+        const receiptFolded = document.getElementById('receiptFolded');
+        const receiptUnfolded = document.getElementById('receiptUnfolded');
         const backButton = document.getElementById('backButton');
         const printingStatus = document.getElementById('printingStatus');
-        const receiptImage = document.getElementById('receiptImage');
+        const cameraContainer = document.getElementById('cameraContainer');
+        const cameraVideo = document.getElementById('cameraVideo');
+        const cameraCanvas = document.getElementById('cameraCanvas');
+        const handInstruction = document.getElementById('handInstruction');
+        const unfoldProgress = document.getElementById('unfoldProgress');
+        const progressFill = document.getElementById('progressFill');
+
+        let hands;
+        let camera;
+        let unfoldPercentage = 0;
+        let isPrinted = false;
+
+        // Receipt images mapping
+        const receiptImages = {
+            furniture: {
+                folded: '/mnt/user-data/uploads/furniture-folded.png',
+                unfolded: '/mnt/user-data/uploads/furniture-unfolded.png'
+            },
+            earphones: {
+                folded: '/mnt/user-data/uploads/earphones-folded.png',
+                unfolded: '/mnt/user-data/uploads/earphones-unfolded.png'
+            },
+            coffee: {
+                folded: '/mnt/user-data/uploads/coffee-folded.png',
+                unfolded: '/mnt/user-data/uploads/coffee-unfolded.png'
+            },
+            bottle: {
+                folded: '/mnt/user-data/uploads/bottle-folded.png',
+                unfolded: '/mnt/user-data/uploads/bottle-unfolded.png'
+            },
+            sweater: {
+                folded: '/mnt/user-data/uploads/sweater-folded.png',
+                unfolded: '/mnt/user-data/uploads/sweater-unfolded.png'
+            }
+        };
 
         // Get receipt type from URL
         const urlParams = new URLSearchParams(window.location.search);
-        const receiptType = urlParams.get('type');
+        const receiptType = urlParams.get('type') || 'furniture';
+
+        // Set receipt images based on type
+        receiptFolded.src = receiptImages[receiptType].folded;
+        receiptUnfolded.src = receiptImages[receiptType].unfolded;
 
         // Start printing animation on page load
         window.addEventListener('load', () => {
@@ -237,21 +408,175 @@
             setTimeout(() => {
                 receiptPaper.classList.add('printing');
 
-                // Hide printing status after animation completes
+                // Hide printing status and show camera after animation completes
                 setTimeout(() => {
                     printingStatus.classList.remove('active');
+                    isPrinted = true;
+                    initHandTracking();
                 }, 2500);
             }, 500);
         });
 
+        // Initialize Hand Tracking
+        async function initHandTracking() {
+            try {
+                // Show camera container and instruction
+                cameraContainer.style.display = 'block';
+                handInstruction.classList.add('active');
+
+                // Initialize MediaPipe Hands
+                hands = new Hands({
+                    locateFile: (file) => {
+                        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                    }
+                });
+
+                hands.setOptions({
+                    maxNumHands: 1,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.5,
+                    minTrackingConfidence: 0.5
+                });
+
+                hands.onResults(onHandResults);
+
+                // Setup camera
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'user' } 
+                });
+                cameraVideo.srcObject = stream;
+
+                // Start hand detection
+                await cameraVideo.play();
+                detectHands();
+
+            } catch (error) {
+                console.error('Error initializing hand tracking:', error);
+                handInstruction.querySelector('.title').textContent = '⚠️ Camera access needed';
+                handInstruction.querySelector('div:last-child').textContent = 'Please allow camera access to unfold receipt';
+            }
+        }
+
+        async function detectHands() {
+            if (!isPrinted) return;
+            
+            await hands.send({ image: cameraVideo });
+            requestAnimationFrame(detectHands);
+        }
+
+        function onHandResults(results) {
+            const canvasCtx = cameraCanvas.getContext('2d');
+            cameraCanvas.width = cameraVideo.videoWidth;
+            cameraCanvas.height = cameraVideo.videoHeight;
+
+            // Clear canvas
+            canvasCtx.clearRect(0, 0, cameraCanvas.width, cameraCanvas.height);
+
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                const landmarks = results.multiHandLandmarks[0];
+                
+                // Draw hand landmarks
+                drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
+                    color: '#00FF00',
+                    lineWidth: 2
+                });
+                drawLandmarks(canvasCtx, landmarks, {
+                    color: '#FF0000',
+                    lineWidth: 1,
+                    radius: 3
+                });
+
+                // Get hand position (use wrist or palm)
+                const wrist = landmarks[0];
+                const handY = wrist.y; // 0 = top, 1 = bottom
+
+                // Calculate unfold percentage based on hand Y position
+                const normalizedY = Math.max(0, Math.min(1, (handY - 0.2) / 0.6));
+                unfoldPercentage = normalizedY * 100;
+
+                // Update receipt unfold
+                updateReceiptUnfold(unfoldPercentage);
+                
+                // Show/hide progress based on hand movement
+                if (unfoldPercentage > 5) {
+                    unfoldProgress.classList.add('active');
+                    handInstruction.classList.remove('active');
+                } else {
+                    unfoldProgress.classList.remove('active');
+                    handInstruction.classList.add('active');
+                }
+
+                progressFill.style.width = `${unfoldPercentage}%`;
+
+            } else {
+                // No hand detected
+                unfoldProgress.classList.remove('active');
+                handInstruction.classList.add('active');
+            }
+        }
+
+        function updateReceiptUnfold(percentage) {
+            // Cross-fade between folded and unfolded images
+            receiptFolded.style.opacity = 1 - (percentage / 100);
+            receiptUnfolded.style.opacity = percentage / 100;
+        }
+
+        // Helper functions for drawing hand landmarks
+        function drawConnectors(ctx, landmarks, connections, style) {
+            ctx.strokeStyle = style.color;
+            ctx.lineWidth = style.lineWidth;
+            
+            for (const connection of connections) {
+                const start = landmarks[connection[0]];
+                const end = landmarks[connection[1]];
+                
+                ctx.beginPath();
+                ctx.moveTo(start.x * ctx.canvas.width, start.y * ctx.canvas.height);
+                ctx.lineTo(end.x * ctx.canvas.width, end.y * ctx.canvas.height);
+                ctx.stroke();
+            }
+        }
+
+        function drawLandmarks(ctx, landmarks, style) {
+            ctx.fillStyle = style.color;
+            
+            for (const landmark of landmarks) {
+                ctx.beginPath();
+                ctx.arc(
+                    landmark.x * ctx.canvas.width,
+                    landmark.y * ctx.canvas.height,
+                    style.radius,
+                    0,
+                    2 * Math.PI
+                );
+                ctx.fill();
+            }
+        }
+
+        // Hand connections (MediaPipe standard)
+        const HAND_CONNECTIONS = [
+            [0, 1], [1, 2], [2, 3], [3, 4],
+            [0, 5], [5, 6], [6, 7], [7, 8],
+            [0, 9], [9, 10], [10, 11], [11, 12],
+            [0, 13], [13, 14], [14, 15], [15, 16],
+            [0, 17], [17, 18], [18, 19], [19, 20],
+            [5, 9], [9, 13], [13, 17]
+        ];
+
         // Back button - return to main page
         backButton.addEventListener('click', () => {
+            if (cameraVideo.srcObject) {
+                cameraVideo.srcObject.getTracks().forEach(track => track.stop());
+            }
             window.location.href = 'unedited-cards.html';
         });
 
         // ESC key to go back
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
+                if (cameraVideo.srcObject) {
+                    cameraVideo.srcObject.getTracks().forEach(track => track.stop());
+                }
                 window.location.href = 'unedited-cards.html';
             }
         });
