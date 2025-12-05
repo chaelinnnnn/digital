@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt Printer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .printer-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+        }
+
+        /* Printer Machine */
+        .printer-machine {
+            width: 90%;
+            max-width: 700px;
+            height: 200px;
+            background: linear-gradient(180deg, #e8e8e8 0%, #d4d4d4 100%);
+            border-radius: 40px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.15),
+                inset 0 -5px 15px rgba(0, 0, 0, 0.1),
+                inset 0 5px 15px rgba(255, 255, 255, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Printer Slot */
+        .printer-slot {
+            width: 70%;
+            height: 30px;
+            background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
+            border-radius: 15px;
+            box-shadow: 
+                inset 0 4px 10px rgba(0, 0, 0, 0.8),
+                0 2px 5px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .printer-slot::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+        }
+
+        /* Receipt Paper */
+        .receipt-paper {
+            width: 280px;
+            background: white;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 1;
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+
+        .receipt-paper.printing {
+            animation: printReceipt 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            opacity: 1;
+        }
+
+        @keyframes printReceipt {
+            0% {
+                transform: translateY(-100%);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .receipt-paper img {
+            width: 100%;
+            display: block;
+        }
+
+        /* Back Button */
+        .back-button {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .back-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .back-button svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Printing indicator */
+        .printing-status {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .printing-status.active {
+            opacity: 1;
+        }
+
+        .printing-status .dot {
+            width: 8px;
+            height: 8px;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: blink 1s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        @media (max-width: 768px) {
+            .printer-machine {
+                height: 150px;
+            }
+
+            .receipt-paper {
+                width: 240px;
+            }
+
+            .back-button {
+                top: 20px;
+                left: 20px;
+                width: 45px;
+                height: 45px;
+            }
+
+            .printing-status {
+                top: 20px;
+                right: 20px;
+                font-size: 12px;
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Button -->
+    <div class="back-button" id="backButton">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+    </div>
+
+    <!-- Printing Status -->
+    <div class="printing-status" id="printingStatus">
+        <div class="dot"></div>
+        <span>Printing receipt...</span>
+    </div>
+
+    <!-- Printer Container -->
+    <div class="printer-container">
+        <!-- Printer Machine -->
+        <div class="printer-machine">
+            <div class="printer-slot"></div>
+        </div>
+
+        <!-- Receipt Paper -->
+        <div class="receipt-paper" id="receiptPaper">
+            <img src="/mnt/user-data/uploads/136dd140932b3eaef3c8f043cdfc458b.jpg" alt="Receipt" id="receiptImage">
+        </div>
+    </div>
+
+    <script>
+        const receiptPaper = document.getElementById('receiptPaper');
+        const backButton = document.getElementById('backButton');
+        const printingStatus = document.getElementById('printingStatus');
+        const receiptImage = document.getElementById('receiptImage');
+
+        // Get receipt type from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const receiptType = urlParams.get('type');
+
+        // Start printing animation on page load
+        window.addEventListener('load', () => {
+            // Show printing status
+            printingStatus.classList.add('active');
+
+            // Start printing after short delay
+            setTimeout(() => {
+                receiptPaper.classList.add('printing');
+
+                // Hide printing status after animation completes
+                setTimeout(() => {
+                    printingStatus.classList.remove('active');
+                }, 2500);
+            }, 500);
+        });
+
+        // Back button - return to main page
+        backButton.addEventListener('click', () => {
+            window.location.href = 'unedited-cards.html';
+        });
+
+        // ESC key to go back
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                window.location.href = 'unedited-cards.html';
+            }
+        });
+    </script>
+</body>
+</html>
